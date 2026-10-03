@@ -1,0 +1,42 @@
+BASEERAH — Audio Verification Evidence
+======================================
+
+Test:
+Trusted IslamHouse audio → Whisper ASR → Sliding Windows → RAG → Confidence Gate
+
+Audio source:
+IslamHouse
+Title: حديث: أي العمل أفضل
+Speaker: عبد الرزاق بن عبد المحسن البدر
+
+ASR:
+segments: 3
+windows: 6
+
+Verification Result:
+status: insufficient_evidence
+
+message:
+لم يتم العثور على دليل كافٍ للتحقق من هذا المحتوى.
+
+final_score:
+0.6281747341156005
+
+margin:
+0.03087606430053702
+
+source_id:
+None
+
+Interpretation:
+The system did not return or invent a source when the current
+knowledge base did not contain sufficiently unambiguous evidence.
+
+Pipeline:
+Audio
+→ Whisper ASR
+→ Arabic transcript segments
+→ Sliding windows
+→ Hybrid RAG
+→ Confidence Gate
+→ Safe Abstention

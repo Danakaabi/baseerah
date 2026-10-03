@@ -1,0 +1,33 @@
+BASEERAH - Audio Verification Evidence
+======================================
+
+Pipeline:
+Audio
+→ Faster-Whisper ASR
+→ Transcript Segments
+→ Candidate Windows
+→ Quote Matcher
+→ Verification Engine
+→ Trusted Source
+→ Context Trace
+
+Real test file:
+data/demo/audio/islamhouse_hadith_test_60s.wav
+
+Result:
+status: evidence_found
+message: تم العثور على دليل ذي صلة في مصدر معتمد.
+score: 0.6458
+margin: 0.1605
+source_id: dorar-bukhari-1519
+title: أي الأعمال أفضل؟
+context_trace: YES
+
+Interpretation:
+The ASR transcript contained recognition errors, but BASEERAH
+successfully matched the quoted content to the corresponding
+trusted-source record and returned its context trace.
+
+Important:
+The score is a technical quotation-matching score.
+It is NOT a religious truth or authenticity percentage.

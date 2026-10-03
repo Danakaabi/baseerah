@@ -1,0 +1,46 @@
+BASEERAH - Stage 11 Final API Evidence
+======================================
+
+Unified verification API:
+
+POST /verify/text
+POST /verify/image
+POST /verify/audio
+
+Verification architecture:
+
+Text
+→ Semantic Retrieval
+→ Verification Engine
+→ Trusted Source
+→ Context Trace
+
+Image
+→ EasyOCR
+→ Candidate Windows
+→ Quote Matching
+→ Semantic Fallback
+→ Verification Engine
+→ Trusted Source
+→ Context Trace
+
+Audio
+→ Faster-Whisper
+→ Candidate Windows
+→ Quote Matching
+→ Semantic Fallback
+→ Verification Engine
+→ Trusted Source
+→ Context Trace
+
+Safety:
+Insufficient evidence triggers safe abstention.
+
+Regression test:
+33 passed
+0 failed
+
+OpenAPI:
+POST /verify/text  PASS
+POST /verify/image PASS
+POST /verify/audio PASS
