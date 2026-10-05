@@ -1,0 +1,10 @@
+{
+  "samples": [
+    {
+      "file": "maher_alfajr.mp3",
+      "expected": "unknown",
+      "speaker_name": "ماهر المعيقلي",
+      "purpose": "negative_speaker_identification_test"
+    }
+  ]
+}

@@ -26,11 +26,11 @@ def get_whisper_model() -> WhisperModel:
     )
 
 
-def extract_audio_segments(
+def extract_audio_segments_with_quality(
     audio_path: str | Path,
-) -> list[str]:
+) -> tuple[list[str], dict[str, float | int]]:
     """
-    Transcribe Arabic audio into ordered text segments.
+    Transcribe Arabic audio and expose Whisper quality signals.
     """
 
     path = Path(audio_path)
@@ -47,18 +47,76 @@ def extract_audio_segments(
 
     model = get_whisper_model()
 
-    segments, _ = model.transcribe(
+    segment_generator, _ = model.transcribe(
         str(path),
         language="ar",
         beam_size=5,
+        temperature=0.0,
         vad_filter=True,
+        condition_on_previous_text=False,
+        initial_prompt=(
+            "محتوى إسلامي باللغة العربية الفصحى، "
+            "أحاديث نبوية، فتاوى، محاضرات شرعية، "
+            "أسماء العلماء والمصطلحات الإسلامية."
+        ),
     )
 
-    return [
+    whisper_segments = list(segment_generator)
+
+    texts = [
         segment.text.strip()
-        for segment in segments
+        for segment in whisper_segments
         if segment.text.strip()
     ]
+
+    log_probs = [
+        float(segment.avg_logprob)
+        for segment in whisper_segments
+        if segment.text.strip()
+    ]
+
+    no_speech_probs = [
+        float(segment.no_speech_prob)
+        for segment in whisper_segments
+        if segment.text.strip()
+    ]
+
+    metrics: dict[str, float | int] = {
+        "segment_count": len(texts),
+        "text_length": len(" ".join(texts)),
+        "word_count": len(" ".join(texts).split()),
+        "avg_logprob": (
+            sum(log_probs) / len(log_probs)
+            if log_probs
+            else -99.0
+        ),
+        "avg_no_speech_prob": (
+            sum(no_speech_probs) / len(no_speech_probs)
+            if no_speech_probs
+            else 1.0
+        ),
+        "max_no_speech_prob": (
+            max(no_speech_probs)
+            if no_speech_probs
+            else 1.0
+        ),
+    }
+
+    return texts, metrics
+
+
+def extract_audio_segments(
+    audio_path: str | Path,
+) -> list[str]:
+    """
+    Backward-compatible transcript-only helper.
+    """
+
+    segments, _ = extract_audio_segments_with_quality(
+        audio_path
+    )
+
+    return segments
 
 
 def build_audio_windows(

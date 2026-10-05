@@ -5,7 +5,7 @@ from app.ingestion.text import normalize_arabic
 from app.models.schemas import DocumentChunk
 
 
-MIN_QUOTE_SCORE = 0.40
+MIN_QUOTE_SCORE = 0.70
 MIN_QUOTE_MARGIN = 0.15
 
 

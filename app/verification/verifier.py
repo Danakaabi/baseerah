@@ -145,9 +145,30 @@ class Verifier:
                 context_trace=context_trace,
             )
 
-        return self.verify_candidates(
+        result = self.verify_candidates(
             cleaned_candidates
         )
+
+        # ASR/OCR input is noisy, so semantic retrieval
+        # must meet a stricter evidence gate.
+        if (
+            result.status == "evidence_found"
+            and result.evidence_score is not None
+            and (
+                result.evidence_score.final_score < 0.72
+                or result.evidence_score.margin < 0.08
+            )
+        ):
+            return VerificationResult(
+                query=result.query,
+                status="insufficient_evidence",
+                message=INSUFFICIENT_EVIDENCE_MESSAGE,
+                evidence_score=result.evidence_score,
+                source=None,
+                context_trace=None,
+            )
+
+        return result
 
     def _build_result(
         self,

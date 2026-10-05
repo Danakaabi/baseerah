@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>نتيجة التحليل | بصيرة</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="../css/styles.css">
+</head>
+
+<body>
+
+<div class="phone">
+
+  <div class="notch"></div>
+
+  <div class="statusbar">
+    <span>8:15</span>
+    <span>🔕 📶 🔋</span>
+  </div>
+
+  <div class="top">
+    <button class="iconbtn" onclick="goBack()">›</button>
+    <div class="crumb">بصيرة</div>
+    <div class="spacer32"></div>
+  </div>
+
+  <main class="screen">
+
+    <div class="h1 disp">نتيجة التحقق</div>
+
+    <div class="card center">
+      <b id="resultTitle"
+         style="font-size:17px;color:var(--cream);">
+        جاري تحميل النتيجة...
+      </b>
+
+      <p id="resultMessage"
+         style="color:var(--muted);font-size:13px;line-height:1.8;">
+      </p>
+
+      <div id="scoreBox"
+           class="codebox"
+           style="margin-top:14px;">
+        —
+      </div>
+    </div>
+
+
+    <div class="sectitle">النص المستخرج من الصوت</div>
+
+    <div class="card">
+      <p id="transcript"
+         style="color:var(--text);font-size:13px;line-height:1.9;margin:0;">
+        —
+      </p>
+    </div>
+
+
+    <div class="sectitle">المصدر الأقرب</div>
+
+    <div class="card">
+
+      <div class="row" style="cursor:default;">
+        <div class="ic">✦</div>
+
+        <div class="rowtext">
+          <b id="sourceName">—</b>
+          <span id="documentTitle">—</span>
+        </div>
+      </div>
+
+      <button
+        class="btn ghost"
+        id="sourceLinkBtn"
+        style="margin-top:12px;">
+        فتح المصدر
+      </button>
+
+    </div>
+
+
+    <div class="sectitle">السياق الأصلي</div>
+
+    <div class="card">
+
+      <label>قبل المقطع</label>
+      <p id="contextPrevious"
+         style="color:var(--muted);font-size:12.5px;line-height:1.8;">
+        —
+      </p>
+
+      <label>المقطع المطابق</label>
+      <p id="contextCurrent"
+         style="color:var(--cream);font-size:13px;line-height:1.9;">
+        —
+      </p>
+
+      <label>بعد المقطع</label>
+      <p id="contextNext"
+         style="color:var(--muted);font-size:12.5px;line-height:1.8;">
+        —
+      </p>
+
+    </div>
+
+
+    <button class="btn ghost" onclick="go('detect')">
+      تحقق من مقطع آخر
+    </button>
+
+  </main>
+
+
+  <nav class="tabbar">
+
+    <a href="../index.html">
+      <span class="ti">⌂</span>
+      الرئيسية
+    </a>
+
+    <a href="tools.html">
+      <span class="ti">♡</span>
+      محبة الأدوات
+    </a>
+
+    <a href="authors.html">
+      <span class="ti">▤</span>
+      المؤلفات
+    </a>
+
+    <a href="more.html">
+      <span class="ti">⋯</span>
+      المزيد
+    </a>
+
+  </nav>
+
+</div>
+
+<script src="../js/app.js"></script>
+
+</body>
+</html>
