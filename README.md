@@ -23,7 +23,7 @@
   <img src="https://img.shields.io/badge/FAISS-Vector_Search-5A67D8" alt="FAISS">
   <img src="https://img.shields.io/badge/EasyOCR-Arabic_OCR-8B5CF6" alt="EasyOCR">
   <img src="https://img.shields.io/badge/Whisper-Arabic_ASR-7C3AED" alt="Whisper">
-  <img src="https://img.shields.io/badge/Tests-33_Passing-success" alt="33 Tests Passing">
+  <img src="https://img.shields.io/badge/Tests-43_Passing-success" alt="43 Tests Passing">
 </p>
 
 <p align="center">
@@ -41,7 +41,7 @@
 
 - **Text** — التحقق من النصوص والاقتباسات.
 - **Image** — استخراج النص العربي باستخدام OCR ثم التحقق منه.
-- **Audio** — تحويل الكلام العربي إلى نص ثم البحث عن الدليل المرتبط به.
+- **Audio** — تحليل الصوت وتتبع المصدر والسياق والتحقق من هوية المتحدث ورصد مؤشرات الصوت الصناعي مع مراجعة بشرية عند الحاجة.
 
 لا تهدف بصيرة إلى إصدار فتوى أو استبدال المرجعية العلمية، وإنما إلى تقديم **أدلة قابلة للتتبع** تساعد المستخدم على مراجعة المصدر والسياق.
 
@@ -244,6 +244,26 @@ Quote Matching / Retrieval
   ↓
 Verification
 ```
+
+---
+
+## Audio Intelligence Engine
+
+يتضمن مسار التحقق الصوتي في بصيرة عدة إشارات مستقلة:
+
+- **Faster-Whisper** لتحويل الصوت العربي إلى نص.
+- **Embeddings + FAISS** للبحث عن المصدر والسياق.
+- **WavLM Speaker Verification** لمقارنة هوية المتحدث مع الأصوات المرجعية الموثوقة.
+- **Anti-Deepfake ONNX Model** لرصد مؤشرات الصوت الصناعي بشكل تجريبي.
+- **Human Review Policy** لتحويل الحالات غير الحاسمة أو المتعارضة إلى مراجعة بشرية بدل إصدار حكم تلقائي.
+
+المسار الموحد المستخدم في الواجهة:
+
+`POST /verify/audio/full`
+
+> نتائج التحقق الصوتي هي مؤشرات مساعدة وليست إثباتا جنائيا نهائيا لأصالة التسجيل. ميزة اكتشاف القص والدمج ما زالت تجريبية وغير مفعلة في مسار الـMVP لأنها لم تجتز التحقق المضبوط بشكل موثوق.
+
+للتفاصيل التقنية والقيود والتقييم: `docs/TECHNICAL_VERIFICATION.md`
 
 ---
 

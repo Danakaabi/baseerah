@@ -9,6 +9,7 @@ from fastapi import (
     UploadFile,
 )
 
+from app.audio.deepfake_detection import detect_synthetic_voice
 from app.audio.speaker_identification import identify_speaker
 from app.audio.speaker_verification import (
     MODEL_NAME,
@@ -18,6 +19,8 @@ from app.ingestion.audio import (
     build_audio_windows,
     extract_audio_segments,
 )
+from app.audio.authenticity import analyze_audio_authenticity
+from app.verification.review_policy import determine_review_policy
 from app.ingestion.image import (
     build_text_windows,
     extract_text_blocks,
@@ -391,3 +394,328 @@ async def identify_uploaded_speaker(
     finally:
         if temp_path is not None:
             temp_path.unlink(missing_ok=True)
+
+@router.post("/audio/deepfake")
+async def verify_audio_deepfake(
+    audio: UploadFile = File(...),
+) -> dict:
+    """
+    Analyze an uploaded audio clip for synthetic/deepfake
+    speech indicators.
+
+    This detector is experimental. Returned scores are model
+    outputs and are not calibrated probabilities of authenticity.
+    """
+
+    content_type = audio.content_type or ""
+    filename = audio.filename or ""
+    extension = Path(filename).suffix.lower()
+
+    allowed_extensions = {
+        ".mp3",
+        ".wav",
+        ".m4a",
+        ".ogg",
+        ".webm",
+    }
+
+    if (
+        content_type not in ALLOWED_AUDIO_TYPES
+        and extension not in allowed_extensions
+    ):
+        raise HTTPException(
+            status_code=415,
+            detail=(
+                "Unsupported audio format. "
+                "Use MP3, WAV, M4A, OGG, or WEBM."
+            ),
+        )
+
+    audio_bytes = await audio.read()
+
+    if not audio_bytes:
+        raise HTTPException(
+            status_code=400,
+            detail="Uploaded audio is empty.",
+        )
+
+    if len(audio_bytes) > MAX_AUDIO_SIZE:
+        raise HTTPException(
+            status_code=413,
+            detail="Audio exceeds the 25 MB limit.",
+        )
+
+    suffix = (
+        ALLOWED_AUDIO_TYPES.get(content_type)
+        or extension
+        or ".wav"
+    )
+
+    temp_path: Path | None = None
+
+    try:
+        with tempfile.NamedTemporaryFile(
+            suffix=suffix,
+            delete=False,
+        ) as temp_file:
+            temp_file.write(audio_bytes)
+            temp_path = Path(temp_file.name)
+
+        try:
+            return detect_synthetic_voice(temp_path)
+
+        except Exception as exc:
+            raise HTTPException(
+                status_code=422,
+                detail=(
+                    "The audio could not be analyzed "
+                    "for synthetic speech."
+                ),
+            ) from exc
+
+    finally:
+        if temp_path is not None:
+            temp_path.unlink(missing_ok=True)
+
+@router.post("/audio/authenticity")
+async def verify_audio_authenticity(
+    audio: UploadFile = File(...),
+):
+    allowed_extensions = {
+        ".mp3",
+        ".wav",
+        ".m4a",
+        ".ogg",
+        ".webm",
+    }
+
+    suffix = Path(audio.filename or "").suffix.lower()
+
+    content_type = (
+        audio.content_type or ""
+    ).lower()
+
+    if (
+        not content_type.startswith("audio/")
+        and suffix not in allowed_extensions
+    ):
+        raise HTTPException(
+            status_code=415,
+            detail="Unsupported audio format.",
+        )
+
+    data = await audio.read()
+
+    if not data:
+        raise HTTPException(
+            status_code=400,
+            detail="Empty audio file.",
+        )
+
+    max_size = 25 * 1024 * 1024
+
+    if len(data) > max_size:
+        raise HTTPException(
+            status_code=413,
+            detail="Audio file is too large. Maximum size is 25 MB.",
+        )
+
+    temp_path = None
+
+    try:
+        with tempfile.NamedTemporaryFile(
+            suffix=suffix or ".wav",
+            delete=False,
+        ) as tmp:
+            tmp.write(data)
+            temp_path = Path(tmp.name)
+
+        result = analyze_audio_authenticity(
+            temp_path
+        )
+
+        return result
+
+    except HTTPException:
+        raise
+
+    except Exception:
+        raise HTTPException(
+            status_code=422,
+            detail=(
+                "The audio could not be analyzed "
+                "for authenticity."
+            ),
+        )
+
+    finally:
+        if temp_path is not None:
+            temp_path.unlink(
+                missing_ok=True
+            )
+
+
+
+@router.post("/audio/full")
+async def verify_audio_full(
+    audio: UploadFile = File(...),
+):
+    """
+    Run the complete BASEERAH audio verification pipeline.
+
+    The report combines:
+    1. Speech-to-text and trusted-source content verification.
+    2. Trusted speaker identification.
+    3. Synthetic-speech detection.
+
+    These signals are reported separately because none of them
+    alone proves that an audio recording is authentic.
+    """
+
+    if audio.content_type not in ALLOWED_AUDIO_TYPES:
+        raise HTTPException(
+            status_code=415,
+            detail=(
+                "Unsupported audio format. "
+                "Use MP3, WAV, M4A, OGG, or WEBM."
+            ),
+        )
+
+    audio_bytes = await audio.read()
+
+    if not audio_bytes:
+        raise HTTPException(
+            status_code=400,
+            detail="Uploaded audio is empty.",
+        )
+
+    if len(audio_bytes) > MAX_AUDIO_SIZE:
+        raise HTTPException(
+            status_code=413,
+            detail="Audio exceeds the 25 MB limit.",
+        )
+
+    suffix = ALLOWED_AUDIO_TYPES[
+        audio.content_type
+    ]
+
+    temp_path: Path | None = None
+
+    try:
+        with tempfile.NamedTemporaryFile(
+            suffix=suffix,
+            delete=False,
+        ) as temp_file:
+            temp_file.write(audio_bytes)
+            temp_path = Path(temp_file.name)
+
+        # -----------------------------------------
+        # 1. Content verification
+        # Whisper -> text windows -> RAG
+        # -----------------------------------------
+
+        segments = extract_audio_segments(
+            temp_path
+        )
+
+        windows = build_audio_windows(
+            segments
+        )
+
+        if windows:
+            verifier = get_verifier()
+
+            content_result = (
+                verifier.verify_quote_candidates(
+                    windows
+                )
+            )
+
+            if hasattr(
+                content_result,
+                "model_dump",
+            ):
+                content_result = (
+                    content_result.model_dump()
+                )
+
+        else:
+            content_result = {
+                "status": "insufficient_evidence",
+                "message": (
+                    "No usable Arabic speech was "
+                    "detected for content verification."
+                ),
+            }
+
+        # -----------------------------------------
+        # 2. Audio-level authenticity signals
+        # Speaker + synthetic speech
+        # -----------------------------------------
+
+        authenticity_result = (
+            analyze_audio_authenticity(
+                temp_path
+            )
+        )
+
+        # -----------------------------------------
+        # 3. Human-review policy
+        # -----------------------------------------
+
+        review_policy = determine_review_policy(
+            content_result,
+            authenticity_result,
+        )
+
+        review_status = (
+            "supported"
+            if not review_policy[
+                "human_review_required"
+            ]
+            else "needs_review"
+        )
+
+        review_reasons = review_policy[
+            "reasons"
+        ]
+
+        return {
+            "verification_type":
+                "baseerah_full_audio",
+            "review_status":
+                review_status,
+            "review_policy":
+                review_policy,
+            "content_verification":
+                content_result,
+            "audio_authenticity":
+                authenticity_result,
+            "review_reasons":
+                review_reasons,
+            "disclaimer": (
+                "BASEERAH combines independent "
+                "verification signals. Results are "
+                "decision-support indicators and do "
+                "not constitute definitive forensic "
+                "proof of authenticity."
+            ),
+        }
+
+    except HTTPException:
+        raise
+
+    except Exception:
+        raise HTTPException(
+            status_code=422,
+            detail=(
+                "The audio could not be processed "
+                "by the full verification pipeline."
+            ),
+        )
+
+    finally:
+        if temp_path is not None:
+            temp_path.unlink(
+                missing_ok=True
+            )

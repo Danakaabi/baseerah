@@ -219,7 +219,7 @@ async function verifyAudio() {
 
   try {
     const response = await fetch(
-      "http://127.0.0.1:8000/verify/audio",
+      "http://127.0.0.1:8000/verify/audio/full",
       {
         method: "POST",
         body: formData
@@ -273,19 +273,19 @@ document.addEventListener("DOMContentLoaded", () => {
    ========================================== */
 
 function renderAudioResult() {
-
   const title = document.getElementById("resultTitle");
 
   if (!title) return;
 
-
-  const raw = sessionStorage.getItem("baseerahAudioResult");
+  const raw = sessionStorage.getItem(
+    "baseerahAudioResult"
+  );
 
   if (!raw) {
-
     title.textContent = "لا توجد نتيجة محفوظة";
 
-    const message = document.getElementById("resultMessage");
+    const message =
+      document.getElementById("resultMessage");
 
     if (message) {
       message.textContent =
@@ -295,175 +295,367 @@ function renderAudioResult() {
     return;
   }
 
-
   try {
+    const report = JSON.parse(raw);
 
-    const result = JSON.parse(raw);
+    /*
+     * /verify/audio/full returns the content result
+     * separately from the audio-authenticity signals.
+     *
+     * Fallback to report itself keeps compatibility
+     * with older saved BASEERAH results.
+     */
+    const result =
+      report.content_verification || report;
 
+    const authenticity =
+      report.audio_authenticity || {};
 
-    const score =
-      Number(result?.evidence_score?.final_score || 0);
+    const policy =
+      report.review_policy || {};
 
+    const score = Number(
+      result?.evidence_score?.final_score || 0
+    );
 
     const percentage =
       Math.round(score * 100);
 
+    // -----------------------------
+    // Overall result
+    // -----------------------------
 
-    if (result.status === "evidence_found") {
-
-      title.textContent = "تم العثور على دليل ذي صلة";
-
+    if (report.review_status === "supported") {
+      title.textContent =
+        "النتيجة مدعومة بالأدلة المتاحة";
+    } else if (
+      report.review_status === "needs_review"
+    ) {
+      title.textContent =
+        "النتيجة تحتاج إلى مراجعة";
+    } else if (
+      result.status === "evidence_found"
+    ) {
+      title.textContent =
+        "تم العثور على دليل ذي صلة";
     } else {
-
-      title.textContent = "اكتمل التحليل";
-
+      title.textContent =
+        "اكتمل التحليل";
     }
-
 
     const message =
       document.getElementById("resultMessage");
 
     if (message) {
-
       message.textContent =
         result.message ||
-        "تم تحليل المقطع الصوتي.";
-
+        "اكتمل تحليل المحتوى والإشارة الصوتية.";
     }
-
 
     const scoreBox =
       document.getElementById("scoreBox");
 
     if (scoreBox) {
-
       if (result.status === "evidence_found") {
-        scoreBox.textContent = `درجة قوة الدليل: ${percentage}%`;
+        scoreBox.textContent =
+          `درجة قوة الدليل: ${percentage}%`;
       } else {
-        scoreBox.textContent = `أعلى تطابق تم العثور عليه: ${percentage}% — أقل من حد التحقق`;
+        scoreBox.textContent =
+          `أعلى تطابق: ${percentage}% — لم يصل إلى حد التحقق`;
       }
-
     }
 
+    // -----------------------------
+    // Transcript
+    // -----------------------------
 
     const transcript =
       document.getElementById("transcript");
 
     if (transcript) {
-
       transcript.textContent =
         result.query ||
         "لم يتم استخراج نص.";
-
     }
 
+    // -----------------------------
+    // Trusted source
+    // -----------------------------
 
     const sourceName =
       document.getElementById("sourceName");
 
     if (sourceName) {
-
       sourceName.textContent =
         result?.source?.source_name ||
-        "مصدر غير محدد";
-
+        "لم يتم تأكيد مصدر موثوق";
     }
-
 
     const documentTitle =
       document.getElementById("documentTitle");
 
     if (documentTitle) {
-
       documentTitle.textContent =
-        result?.source?.document_title ||
-        "";
-
+        result?.source?.document_title || "";
     }
 
+    // -----------------------------
+    // Context Trace
+    // -----------------------------
 
     const previous =
       document.getElementById("contextPrevious");
 
     if (previous) {
-
       previous.textContent =
-        result?.context_trace?.previous?.original_text ||
+        result?.context_trace?.previous
+          ?.original_text ||
         "لا يوجد سياق سابق.";
-
     }
-
 
     const current =
       document.getElementById("contextCurrent");
 
     if (current) {
-
       current.textContent =
-        result?.context_trace?.current?.original_text ||
+        result?.context_trace?.current
+          ?.original_text ||
         result?.source?.original_text ||
         "غير متاح.";
-
     }
-
 
     const next =
       document.getElementById("contextNext");
 
     if (next) {
-
       next.textContent =
-        result?.context_trace?.next?.original_text ||
+        result?.context_trace?.next
+          ?.original_text ||
         "لا يوجد سياق لاحق.";
-
     }
-
 
     const sourceButton =
       document.getElementById("sourceLinkBtn");
 
     if (sourceButton) {
-
       const url =
         result?.source?.source_url;
 
-
       if (url) {
-
         sourceButton.style.display = "";
 
-        sourceButton.addEventListener(
-          "click",
-          () => {
-            window.open(
-              url,
-              "_blank",
-              "noopener,noreferrer"
-            );
-          }
-        );
-
+        sourceButton.onclick = () => {
+          window.open(
+            url,
+            "_blank",
+            "noopener,noreferrer"
+          );
+        };
       } else {
-
         sourceButton.style.display = "none";
-
       }
-
     }
 
+    // -----------------------------
+    // Speaker identity
+    // -----------------------------
+
+    const speaker =
+      authenticity.speaker_identity || {};
+
+    const speakerStatus =
+      document.getElementById("speakerStatus");
+
+    const speakerName =
+      document.getElementById("speakerName");
+
+    const speakerScore =
+      document.getElementById("speakerScore");
+
+    const speakerPercentage =
+      Math.round(
+        Number(speaker.best_score || 0) * 100
+      );
+
+    if (speakerStatus) {
+      if (
+        speaker.interpretation ===
+        "trusted_match"
+      ) {
+        speakerStatus.textContent =
+          "تطابق مع صوت مرجعي موثوق";
+      } else if (
+        speaker.interpretation === "uncertain"
+      ) {
+        speakerStatus.textContent =
+          "هوية المتحدث غير مؤكدة";
+      } else {
+        speakerStatus.textContent =
+          "المتحدث غير موجود في السجل الموثوق";
+      }
+    }
+
+    if (speakerName) {
+      speakerName.textContent =
+        speaker?.best_match?.speaker_name ||
+        "لم يتم تأكيد هوية المتحدث";
+    }
+
+    if (speakerScore) {
+      speakerScore.textContent =
+        `مؤشر تشابه البصمة الصوتية: ${speakerPercentage}% — درجة تشابه وليست احتمالًا للهوية.`;
+    }
+
+    // -----------------------------
+    // Synthetic speech analysis
+    // -----------------------------
+
+    const synthetic =
+      authenticity.synthetic_voice || {};
+
+    const syntheticStatus =
+      document.getElementById(
+        "syntheticStatus"
+      );
+
+    const syntheticScore =
+      document.getElementById(
+        "syntheticScore"
+      );
+
+    const naturalPercentage =
+      Math.round(
+        Number(
+          synthetic.natural_score || 0
+        ) * 100
+      );
+
+    const fakePercentage =
+      Math.round(
+        Number(
+          synthetic.synthetic_score || 0
+        ) * 100
+      );
+
+    if (syntheticStatus) {
+      if (
+        synthetic.interpretation ===
+        "likely_natural"
+      ) {
+        syntheticStatus.textContent =
+          "لم تظهر مؤشرات قوية على صوت صناعي";
+      } else if (
+        synthetic.interpretation ===
+        "likely_synthetic"
+      ) {
+        syntheticStatus.textContent =
+          "رُصدت مؤشرات على صوت صناعي";
+      } else {
+        syntheticStatus.textContent =
+          "تحليل الصوت الصناعي غير حاسم";
+      }
+    }
+
+    if (syntheticScore) {
+      syntheticScore.textContent =
+        `مؤشر الإشارة الطبيعية: ${naturalPercentage}% — مؤشر الإشارة الصناعية: ${fakePercentage}%`;
+    }
+
+    // -----------------------------
+    // Human review policy
+    // -----------------------------
+
+    const reviewDecision =
+      document.getElementById(
+        "reviewDecision"
+      );
+
+    const reviewPriority =
+      document.getElementById(
+        "reviewPriority"
+      );
+
+    const reviewReasons =
+      document.getElementById(
+        "reviewReasons"
+      );
+
+    if (reviewDecision) {
+      if (
+        policy.decision ===
+        "auto_supported"
+      ) {
+        reviewDecision.textContent =
+          "مدعوم وفق الإشارات المتاحة";
+      } else if (
+        policy.decision ===
+        "high_priority_review"
+      ) {
+        reviewDecision.textContent =
+          "تحتاج الحالة إلى مراجعة بشرية عاجلة";
+      } else {
+        reviewDecision.textContent =
+          "تحتاج الحالة إلى مراجعة بشرية";
+      }
+    }
+
+    if (reviewPriority) {
+      if (policy.priority === "high") {
+        reviewPriority.textContent =
+          "أولوية المراجعة: عالية";
+      } else if (
+        policy.human_review_required === true
+      ) {
+        reviewPriority.textContent =
+          "أولوية المراجعة: عادية";
+      } else {
+        reviewPriority.textContent =
+          "لا تتطلب مراجعة بشرية حاليًا";
+      }
+    }
+
+    if (reviewReasons) {
+      const reasons =
+        Array.isArray(policy.reasons)
+          ? policy.reasons
+          : [];
+
+      const reasonTranslations = {
+        "Synthetic-speech indicators were detected.":
+          "تم رصد مؤشرات على صوت صناعي.",
+        "Synthetic-speech analysis is uncertain.":
+          "تحليل الصوت الصناعي غير حاسم.",
+        "Speaker identity is not confirmed.":
+          "لم يتم تأكيد هوية المتحدث.",
+        "Trusted-source evidence is insufficient.":
+          "الأدلة من المصادر الموثوقة غير كافية.",
+        "Audio-level verification is not fully supported.":
+          "نتيجة التحقق على مستوى الصوت غير مدعومة بالكامل.",
+        "Available verification signals are mutually supportive.":
+          "إشارات التحقق المتاحة متوافقة وتدعم النتيجة."
+      };
+
+      const translatedReasons =
+        reasons.map(
+          reason =>
+            reasonTranslations[reason] || reason
+        );
+
+      reviewReasons.textContent =
+        translatedReasons.length
+          ? translatedReasons.join(" • ")
+          : "لا توجد أسباب إضافية للمراجعة.";
+    }
 
   } catch (error) {
-
     console.error(
-      "Unable to render Baseerah result:",
+      "Unable to render BASEERAH full result:",
       error
     );
 
     title.textContent =
       "تعذر قراءة نتيجة التحليل";
-
   }
-
 }
 
 
