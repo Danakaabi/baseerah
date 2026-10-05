@@ -9,6 +9,11 @@ from fastapi import (
     UploadFile,
 )
 
+from app.audio.speaker_identification import identify_speaker
+from app.audio.speaker_verification import (
+    MODEL_NAME,
+    compare_speakers,
+)
 from app.ingestion.audio import (
     build_audio_windows,
     extract_audio_segments,
@@ -209,6 +214,179 @@ async def verify_audio(
         return verifier.verify_quote_candidates(
             windows
         )
+
+    finally:
+        if temp_path is not None:
+            temp_path.unlink(missing_ok=True)
+
+
+@router.post("/speaker")
+async def verify_speaker(
+    reference_audio: UploadFile = File(...),
+    candidate_audio: UploadFile = File(...),
+) -> dict:
+    """
+    Compare a candidate voice with a trusted reference voice.
+
+    The returned similarity is cosine similarity between
+    WavLM speaker embeddings. It is not a probability.
+    """
+
+    uploads = {
+        "reference_audio": reference_audio,
+        "candidate_audio": candidate_audio,
+    }
+
+    temp_paths: list[Path] = []
+
+    try:
+        saved_paths: dict[str, Path] = {}
+
+        for name, upload in uploads.items():
+            if upload.content_type not in ALLOWED_AUDIO_TYPES:
+                raise HTTPException(
+                    status_code=415,
+                    detail=(
+                        f"Unsupported format for {name}. "
+                        "Use MP3, WAV, M4A, OGG, or WEBM."
+                    ),
+                )
+
+            data = await upload.read()
+
+            if not data:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"{name} is empty.",
+                )
+
+            if len(data) > MAX_AUDIO_SIZE:
+                raise HTTPException(
+                    status_code=413,
+                    detail=f"{name} exceeds the 25 MB limit.",
+                )
+
+            suffix = ALLOWED_AUDIO_TYPES[
+                upload.content_type
+            ]
+
+            with tempfile.NamedTemporaryFile(
+                suffix=suffix,
+                delete=False,
+            ) as temp_file:
+                temp_file.write(data)
+                path = Path(temp_file.name)
+
+            temp_paths.append(path)
+            saved_paths[name] = path
+
+        result = compare_speakers(
+            saved_paths["reference_audio"],
+            saved_paths["candidate_audio"],
+        )
+
+        similarity = max(
+            -1.0,
+            min(
+                1.0,
+                float(result["speaker_similarity"]),
+            ),
+        )
+
+        if similarity >= 0.90:
+            interpretation = "strong_match"
+        elif similarity >= 0.80:
+            interpretation = "uncertain"
+        else:
+            interpretation = "low_similarity"
+
+        return {
+            "reference_available": True,
+            "speaker_similarity": similarity,
+            "speaker_interpretation": interpretation,
+            "metric": "cosine_similarity",
+            "model": MODEL_NAME,
+            "analysis_seconds": 20,
+            "calibration_status": "mvp_thresholds_not_final",
+        }
+
+    finally:
+        for path in temp_paths:
+            path.unlink(missing_ok=True)
+
+
+@router.post("/speaker/identify")
+async def identify_uploaded_speaker(
+    audio: UploadFile = File(...),
+) -> dict:
+    """
+    Compare one uploaded audio file against BASEERAH's
+    trusted speaker profiles.
+
+    Similarity values are cosine similarities, not
+    identity probabilities.
+    """
+
+    filename = audio.filename or ""
+    extension = Path(filename).suffix.lower()
+
+    allowed_extensions = {
+        ".mp3",
+        ".wav",
+        ".m4a",
+        ".ogg",
+        ".webm",
+    }
+
+    if (
+        audio.content_type not in ALLOWED_AUDIO_TYPES
+        and extension not in allowed_extensions
+    ):
+        raise HTTPException(
+            status_code=415,
+            detail=(
+                "Unsupported audio format. "
+                "Use MP3, WAV, M4A, OGG, or WEBM."
+            ),
+        )
+
+    audio_bytes = await audio.read()
+
+    if not audio_bytes:
+        raise HTTPException(
+            status_code=400,
+            detail="Uploaded audio is empty.",
+        )
+
+    if len(audio_bytes) > MAX_AUDIO_SIZE:
+        raise HTTPException(
+            status_code=413,
+            detail="Audio exceeds the 25 MB limit.",
+        )
+
+    suffix = ALLOWED_AUDIO_TYPES.get(
+        audio.content_type,
+        extension,
+    )
+    temp_path: Path | None = None
+
+    try:
+        with tempfile.NamedTemporaryFile(
+            suffix=suffix,
+            delete=False,
+        ) as temp_file:
+            temp_file.write(audio_bytes)
+            temp_path = Path(temp_file.name)
+
+        result = identify_speaker(temp_path)
+
+        if result.get("reason") == "no_trusted_profiles":
+            raise HTTPException(
+                status_code=503,
+                detail="No trusted speaker profiles are available.",
+            )
+
+        return result
 
     finally:
         if temp_path is not None:
