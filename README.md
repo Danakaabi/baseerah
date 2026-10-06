@@ -1,5 +1,3 @@
-> **تحديث الواجهات — 5 أكتوبر 2026:** افتح `/ui/` من خادم FastAPI نفسه. أُضيف ربط النص والصورة والصوت الموحد والمقارنة والمصادر وسجل البصمة. تفاصيل التشغيل والتحقق والحدود في [FRONTEND_RELEASE](docs/FRONTEND_RELEASE.md). أرقام الاختبارات والحالات في الأقسام القديمة أدناه تاريخية؛ لم يُعتمد عدد إجمالي جديد دون تشغيل الاختبارات الكاملة بالنماذج.
-
 <p align="center">
   <img src="docs/assets/baseerah-banner.png" alt="BASEERAH — بصيرة" width="100%">
 </p>
@@ -15,20 +13,6 @@
 </p>
 
 <p align="center">
-  <strong>افحص المصدر • راجع السياق • تحقق بالدليل</strong>
-</p>
-
-<p align="center">
-  <img src="https://img.shields.io/badge/Python-3.13-3776AB?logo=python&logoColor=white" alt="Python">
-  <img src="https://img.shields.io/badge/FastAPI-API-009688?logo=fastapi&logoColor=white" alt="FastAPI">
-  <img src="https://img.shields.io/badge/RAG-Hybrid-6C63FF" alt="Hybrid RAG">
-  <img src="https://img.shields.io/badge/FAISS-Vector_Search-5A67D8" alt="FAISS">
-  <img src="https://img.shields.io/badge/EasyOCR-Arabic_OCR-8B5CF6" alt="EasyOCR">
-  <img src="https://img.shields.io/badge/Whisper-Arabic_ASR-7C3AED" alt="Whisper">
-  <img src="https://img.shields.io/badge/Tests-43_Passing-success" alt="43 Tests Passing">
-</p>
-
-<p align="center">
   <strong>فريق أثَر | ATHAR — #368</strong><br>
   Islamic AI Challenge Hackathon
 </p>
@@ -37,123 +21,427 @@
 
 ## عن بصيرة
 
-**بصيرة (BASEERAH)** نموذج أولي لمنصة معرفية مدعومة بالذكاء الاصطناعي، صُممت للمساعدة في التحقق من المحتوى الإسلامي الرقمي المتداول والرجوع إلى **المصدر والسياق** بدل الاكتفاء بمشاهدة اقتباس أو مقطع منفصل.
+**بصيرة (BASEERAH)** نموذج أولي يستخدم تقنيات الذكاء الاصطناعي للمساعدة في التحقق من المحتوى الإسلامي الرقمي المتداول، والعودة إلى المصدر والسياق بدل الاكتفاء باقتباس أو مقطع منفصل.
 
-يدعم الـBackend الحالي ثلاثة أنواع من المدخلات:
+الفكرة الأساسية ليست توليد إجابة دينية جديدة، بل:
 
-- **Text** — التحقق من النصوص والاقتباسات.
-- **Image** — استخراج النص العربي باستخدام OCR ثم التحقق منه.
-- **Audio** — تحليل الصوت وتتبع المصدر والسياق والتحقق من هوية المتحدث ورصد مؤشرات الصوت الصناعي مع مراجعة بشرية عند الحاجة.
+**المحتوى → استخراج النص → البحث في مصادر محددة → قياس قوة الدليل → إظهار المصدر والسياق أو الامتناع عند عدم كفاية الدليل.**
 
-لا تهدف بصيرة إلى إصدار فتوى أو استبدال المرجعية العلمية، وإنما إلى تقديم **أدلة قابلة للتتبع** تساعد المستخدم على مراجعة المصدر والسياق.
+يدعم النموذج الحالي:
 
----
+- **Text Verification** — التحقق من النصوص والاقتباسات.
+- **Image Verification** — استخراج النص العربي من الصور ثم التحقق منه.
+- **Audio Verification** — تحويل الصوت إلى نص ثم البحث عن المصدر والسياق.
+- **Speaker Comparison** — مقارنة تمثيلات صوتية بين تسجيل مرجعي وتسجيل مرشح.
+- **Context Trace** — إظهار السياق المحيط بالمحتوى المسترجع.
+- **Safe Abstention** — عدم الادعاء بوجود دليل عندما لا تكون الأدلة كافية.
+- **Experimental Audio Authenticity Analysis** — مؤشرات تجريبية مساعدة لتحليل بعض خصائص التسجيلات الصوتية.
 
-## المشكلة
-
-قد ينتشر محتوى ديني رقمي على شكل:
-
-- اقتباس مكتوب.
-- صورة تحتوي على نص.
-- مقطع صوتي.
-- جزء مقتطع من محاضرة أو درس.
-- محتوى منسوب إلى عالم أو مصدر معين.
-
-المشكلة ليست دائمًا في وجود الكلمات نفسها، بل قد تكون في:
-
-1. فقدان المصدر الأصلي.
-2. اقتطاع الكلام من سياقه.
-3. حذف ما قبله أو ما بعده.
-4. نسبة النص إلى مصدر غير صحيح.
-5. تداول محتوى لا يوجد عليه دليل كافٍ.
-
-ومن هنا جاءت فكرة:
-
-> **Context Trace — تتبع السياق**
-
-بحيث لا تعرض بصيرة التطابق فقط، بل تحاول إرجاع المستخدم إلى الموضع المرتبط به داخل المصدر.
+> **مهم:** بصيرة أداة مساعدة للوصول إلى الأدلة والمصادر والسياق، وليست أداة لإصدار الفتاوى، كما أن مؤشرات تحليل الصوت لا تمثل إثباتًا جنائيًا نهائيًا لهوية المتحدث أو أصالة التسجيل.
 
 ---
 
-## الحل
+# Quick Start
 
-يمر المحتوى داخل بصيرة عبر Pipeline موحدة للتحقق:
+## 1. المتطلبات
+
+المشروع يستخدم:
 
 ```text
-                     ┌─────────────────┐
-                     │      INPUT      │
-                     └────────┬────────┘
-                              │
-                ┌─────────────┼─────────────┐
-                │             │             │
-              Text          Image         Audio
-                │             │             │
-                │          EasyOCR     Faster-Whisper
-                │             │             │
-                └─────────────┼─────────────┘
-                              │
-                              ▼
-                    Arabic Normalization
-                              │
-                              ▼
-                     Candidate Windows
-                              │
-                              ▼
-                ┌─────────────────────────┐
-                │ Retrieval / Quote Match │
-                └────────────┬────────────┘
+Python 3.13
+Git
+FFmpeg
+```
+
+### تثبيت FFmpeg
+
+على macOS باستخدام Homebrew:
+
+```bash
+brew install ffmpeg
+```
+
+على Ubuntu / Debian:
+
+```bash
+sudo apt update
+sudo apt install ffmpeg
+```
+
+للتحقق:
+
+```bash
+python3 --version
+ffmpeg -version
+```
+
+> بعض نماذج الذكاء الاصطناعي يتم تحميلها عند أول استخدام، لذلك قد يكون أول طلب أبطأ من الطلبات التالية ويحتاج اتصالًا بالإنترنت لتنزيل النموذج إذا لم يكن موجودًا محليًا.
+
+---
+
+## 2. تحميل المشروع
+
+```bash
+git clone https://github.com/Danakaabi/baseerah.git
+cd baseerah
+```
+
+---
+
+## 3. إنشاء Virtual Environment
+
+### macOS / Linux
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+### Windows PowerShell
+
+```powershell
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+```
+
+---
+
+## 4. تثبيت المكتبات
+
+```bash
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+---
+
+## 5. تشغيل المشروع
+
+```bash
+uvicorn app.main:app --host 127.0.0.1 --port 8000
+```
+
+ثم افتح:
+
+```text
+http://127.0.0.1:8000/
+```
+
+سيتم تحويلك تلقائيًا إلى واجهة بصيرة:
+
+```text
+http://127.0.0.1:8000/ui/
+```
+
+واجهة توثيق الـAPI:
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+---
+
+# Health Check
+
+```bash
+curl http://127.0.0.1:8000/health
+```
+
+النتيجة المتوقعة:
+
+```json
+{
+  "status": "ok",
+  "service": "BASEERAH API",
+  "version": "0.1.0"
+}
+```
+
+---
+
+# Demo Samples
+
+العينات التالية موجودة داخل المستودع، وتم اختبار المسارات التالية محليًا قبل التسليم.
+
+---
+
+## 1. Text Verification
+
+مثال نص:
+
+```text
+إن الله لا ينظر إلى صوركم وأموالكم
+```
+
+تشغيل:
+
+```bash
+curl -X POST http://127.0.0.1:8000/verify/text \
+  -H "Content-Type: application/json" \
+  -d '{"text":"إن الله لا ينظر إلى صوركم وأموالكم"}'
+```
+
+في الاختبار المرجعي أعاد النظام:
+
+```text
+status: evidence_found
+source: HadeethEnc
+final_score: 1.0
+```
+
+ويعيد كذلك بيانات المصدر والنص المرتبط والسياق المتاح.
+
+---
+
+## 2. Image Verification
+
+صورة الاختبار:
+
+```text
+data/demo/hadeethenc/hadith_test.jpg
+```
+
+تشغيل:
+
+```bash
+curl --max-time 180 -X POST \
+  http://127.0.0.1:8000/verify/image \
+  -F "image=@data/demo/hadeethenc/hadith_test.jpg"
+```
+
+في الاختبار المرجعي:
+
+```text
+status: evidence_found
+source: HadeethEnc
+final_score ≈ 0.7501
+```
+
+المسار:
+
+```text
+Image
+  ↓
+EasyOCR
+  ↓
+Arabic Text Blocks
+  ↓
+Candidate Windows
+  ↓
+Retrieval / Verification
+  ↓
+Source + Context
+```
+
+قد ينتج OCR نصًا يحتوي على أخطاء بسيطة بسبب جودة الصورة أو شكل الخط، لذلك لا يعتمد بصيرة على التطابق الحرفي فقط في مسار الاسترجاع.
+
+---
+
+## 3. Audio Verification
+
+ملف الاختبار:
+
+```text
+data/demo/audio/islamhouse_hadith_test_60s.wav
+```
+
+تشغيل:
+
+```bash
+curl --max-time 300 -X POST \
+  http://127.0.0.1:8000/verify/audio \
+  -F "audio=@data/demo/audio/islamhouse_hadith_test_60s.wav;type=audio/wav"
+```
+
+في الاختبار المرجعي:
+
+```text
+status: evidence_found
+source: الدرر السنية - الموسوعة الحديثية
+document: أي الأعمال أفضل؟
+final_score ≈ 0.7654
+```
+
+المسار:
+
+```text
+Audio
+  ↓
+Faster-Whisper
+  ↓
+Arabic Transcript
+  ↓
+Text Windows
+  ↓
+Retrieval / Quote Matching
+  ↓
+Trusted Source
+  ↓
+Context Trace
+```
+
+حتى مع وجود اختلافات بسيطة في التفريغ الصوتي، استطاع النظام استرجاع المصدر المرتبط بالمحتوى في عينة الاختبار.
+
+---
+
+# Speaker Comparison Demo
+
+يحتوي المشروع على مسار لمقارنة تسجيل صوتي مرجعي مع تسجيل مرشح باستخدام نموذج Speaker Verification.
+
+النموذج المستخدم:
+
+```text
+microsoft/wavlm-base-plus-sv
+```
+
+المقياس:
+
+```text
+Cosine Similarity
+```
+
+## مثال 1: تسجيلان من مجموعة المتحدث نفسه
+
+```bash
+curl --max-time 300 -X POST \
+  http://127.0.0.1:8000/verify/speaker \
+  -F "reference_audio=@data/speaker_calibration/binbaz/test_01.wav;type=audio/wav" \
+  -F "candidate_audio=@data/speaker_calibration/binbaz/test_02.wav;type=audio/wav"
+```
+
+النتيجة التي تم رصدها في اختبار الـMVP:
+
+```json
+{
+  "reference_available": true,
+  "speaker_similarity": 0.9418506622314453,
+  "speaker_interpretation": "uncertain",
+  "metric": "cosine_similarity",
+  "model": "microsoft/wavlm-base-plus-sv",
+  "analysis_seconds": 20,
+  "decision_threshold": 0.95,
+  "identity_confirmed": false,
+  "calibration_status": "mvp_thresholds_not_final"
+}
+```
+
+---
+
+## مثال 2: تسجيلان من مجموعتي متحدثين مختلفتين
+
+```bash
+curl --max-time 300 -X POST \
+  http://127.0.0.1:8000/verify/speaker \
+  -F "reference_audio=@data/speaker_calibration/binbaz/test_01.wav;type=audio/wav" \
+  -F "candidate_audio=@data/speaker_calibration/binothaimeen/test_01.wav;type=audio/wav"
+```
+
+النتيجة التي تم رصدها:
+
+```json
+{
+  "reference_available": true,
+  "speaker_similarity": 0.7990338206291199,
+  "speaker_interpretation": "low_similarity",
+  "metric": "cosine_similarity",
+  "model": "microsoft/wavlm-base-plus-sv",
+  "analysis_seconds": 20,
+  "decision_threshold": 0.95,
+  "identity_confirmed": false,
+  "calibration_status": "mvp_thresholds_not_final"
+}
+```
+
+### ملاحظة مهمة حول Speaker Verification
+
+قيمة:
+
+```text
+speaker_similarity
+```
+
+هي **Cosine Similarity** بين تمثيلات صوتية وليست Probability لهوية الشخص.
+
+حد القرار الحالي:
+
+```text
+0.95
+```
+
+هو حد محافظ مستخدم في نموذج الـMVP، وليس Threshold نهائيًا تمت معايرته على Dataset إنتاجية أو جنائية.
+
+ولهذا يعيد النظام أيضًا:
+
+```text
+identity_confirmed: false
+calibration_status: mvp_thresholds_not_final
+```
+
+بدل الادعاء بأن هوية الشخص تم إثباتها بشكل قطعي.
+
+---
+
+# كيف يعمل بصيرة؟
+
+```text
+                         USER INPUT
                              │
-                             ▼
-                   Trusted Knowledge Base
+          ┌──────────────────┼──────────────────┐
+          │                  │                  │
+        Text               Image              Audio
+          │                  │                  │
+          │               EasyOCR        Faster-Whisper
+          │                  │                  │
+          └──────────────────┼──────────────────┘
                              │
-                             ▼
+                    Arabic Text Processing
+                             │
+                    Candidate Generation
+                             │
+                 Retrieval / Quote Matching
+                             │
+                Trusted Knowledge Base
+                             │
+              Sentence Embeddings + FAISS
+                             │
                       Confidence Gate
-                       ┌─────┴─────┐
-                       │           │
-                  Sufficient   Insufficient
-                   Evidence      Evidence
-                       │           │
-                       ▼           ▼
-                 Context Trace  Safe Abstention
-                       │
-                       ▼
-              Source + Context + Evidence
+                     ┌───────┴───────┐
+                     │               │
+               Evidence Found    Weak / No Evidence
+                     │               │
+                Context Trace     Safe Abstention
+                     │               │
+                     └───────┬───────┘
+                             │
+                             ▼
+                   Verification Result
 ```
 
 ---
 
-## Context Trace
+# Core AI Pipeline
 
-الميزة المحورية في بصيرة هي **تتبع السياق**.
+## Text Processing
 
-عند العثور على مقطع مرتبط بالمحتوى، لا يكتفي النظام بإظهار نتيجة البحث، بل يستطيع استرجاع:
+النص العربي يمر بمرحلة معالجة قبل البحث، مع الاحتفاظ بالنص الأصلي للعرض.
+
+الفكرة هي الفصل بين:
 
 ```text
-Previous Context
-      ↓
-Matched Content
-      ↓
-Next Context
+original_text
 ```
 
-ويتم ذلك بالاعتماد على ترتيب `chunk_index` داخل المصدر نفسه.
+و:
 
-هذا التصميم يسمح بعرض:
+```text
+normalized_text
+```
 
-- الكلام السابق.
-- الجزء المطابق.
-- الكلام اللاحق.
-- اسم المصدر.
-- عنوان الوثيقة.
-- رابط المصدر عند توفره.
-
-بدون تخزين نسخ مكررة من السياق داخل كل Chunk.
+بحيث يستخدم النص المعالج للمطابقة والاسترجاع، بينما يبقى النص الأصلي متاحًا للعرض والتوثيق.
 
 ---
 
-## الذكاء الاصطناعي المستخدم
-
-### 1. Semantic Embeddings
+## Embeddings
 
 يستخدم المشروع:
 
@@ -161,164 +449,178 @@ Next Context
 sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
 ```
 
-لإنشاء تمثيلات دلالية للنصوص العربية والاستعلامات.
+لإنشاء Embeddings متعددة اللغات، ومنها العربية.
 
 ---
 
-### 2. FAISS Vector Search
+## Vector Search
 
-يستخدم **FAISS** للبحث الدلالي السريع داخل المقاطع المفهرسة من المصادر.
-
----
-
-### 3. Hybrid RAG
-
-بصيرة لا تعتمد على تشابه واحد فقط.
-
-يتم حساب التشابه بشكل منفصل بين:
-
-- عنوان المصدر.
-- محتوى المقطع.
-
-ثم دمجهما حاليًا بالأوزان:
+يستخدم:
 
 ```text
-Title Similarity   = 60%
-Content Similarity = 40%
+FAISS
 ```
 
-هذه النتيجة هي **درجة تقنية للاسترجاع** وليست حكمًا شرعيًا أو نسبة لصحة الحديث أو الفتوى.
+للبحث في الـVector Index واسترجاع المقاطع الأقرب إلى Query.
 
 ---
 
-### 4. Quote Matching
+## Context Trace
 
-المحتوى الناتج من OCR أو ASR قد يحتوي على أخطاء مثل:
+لا يهدف النظام فقط إلى إظهار الجملة المطابقة، بل إلى ربطها بالسياق المتاح.
+
+مثال:
 
 ```text
-الله → اللة
+Previous Context
+       ↓
+Matched Content
+       ↓
+Next Context
 ```
 
-أو فقدان مسافات وكلمات.
-
-لذلك أضيفت طبقة **Quote Matcher** للمساعدة في اكتشاف الاقتباسات القريبة لفظيًا قبل الرجوع إلى الاسترجاع الدلالي عند الحاجة.
-
-هذه الطبقة مخصصة لمرشحات OCR/ASR ولا تستبدل البحث الدلالي العام للنصوص.
+وذلك للمساعدة في اكتشاف الحالات التي يكون فيها الاقتباس صحيحًا لفظيًا لكنه معروض خارج سياقه.
 
 ---
 
-### 5. Arabic OCR
+# Audio Intelligence
 
-تستخدم بصيرة:
+مسار الصوت في بصيرة يتضمن عدة مكونات مستقلة.
 
-```text
-EasyOCR
-```
-
-لاستخراج النص العربي من الصور.
-
-بعد الاستخراج يتم بناء Sliding Windows من المقاطع النصية، ثم إرسالها إلى مسار التحقق نفسه.
-
----
-
-### 6. Arabic Speech Recognition
-
-تستخدم بصيرة:
+## Speech-to-Text
 
 ```text
 Faster-Whisper
 ```
 
-لتحويل الصوت العربي إلى نص.
+يستخدم لتحويل التسجيل الصوتي إلى نص يمكن إدخاله في مسار التحقق والاسترجاع.
 
-المسار:
+---
+
+## Speaker Comparison
+
+```text
+WavLM
+```
+
+يستخدم لاستخراج تمثيلات صوتية ومقارنة تسجيلين باستخدام Cosine Similarity.
+
+---
+
+## Synthetic Voice Detection
+
+يتضمن المشروع مكونًا تجريبيًا لتحليل احتمالية وجود خصائص مرتبطة بالصوت الصناعي باستخدام نموذج ONNX.
+
+هذه النتيجة تعتبر **إشارة مساعدة فقط** داخل الـMVP ولا تستخدم كإثبات قطعي.
+
+---
+
+## Tampering / Audio Authenticity
+
+يتضمن المشروع أيضًا تحليلًا تجريبيًا لبعض خصائص الصوت التي قد تساعد في رصد مؤشرات غير طبيعية.
+
+هذا الجزء ما زال ضمن نطاق:
+
+```text
+Experimental MVP Signal
+```
+
+ولا يمثل نظام Audio Forensics معتمدًا.
+
+---
+
+## Human Review
+
+الحالات غير الحاسمة يمكن تصنيفها للمراجعة البشرية بدل إعطاء قرار قطعي.
+
+هذه السياسة مهمة خصوصًا عندما تكون:
+
+- الأدلة ضعيفة.
+- درجة التشابه غير حاسمة.
+- المصدر غير متوفر.
+- نتائج تحليل الصوت متضاربة.
+- الحالة تقع في منطقة رمادية.
+
+---
+
+# Unified Audio Verification
+
+يتضمن المشروع مسارًا موحدًا لتحليل الصوت:
+
+```http
+POST /verify/audio/full
+```
+
+والهدف منه جمع أكثر من إشارة تحليلية ضمن استجابة واحدة بدل الاعتماد على مؤشر واحد فقط.
+
+المبدأ:
 
 ```text
 Audio
-  ↓
-Whisper ASR
-  ↓
-Transcript Segments
-  ↓
-Candidate Windows
-  ↓
-Quote Matching / Retrieval
-  ↓
-Verification
+  │
+  ├── Speech-to-Text
+  │
+  ├── Source Retrieval
+  │
+  ├── Context Trace
+  │
+  ├── Speaker Analysis
+  │
+  ├── Synthetic Voice Signal
+  │
+  └── Audio Authenticity Signals
+          │
+          ▼
+      Review Policy
 ```
 
 ---
 
-## Audio Intelligence Engine
+# Safe Abstention
 
-يتضمن مسار التحقق الصوتي في بصيرة عدة إشارات مستقلة:
+من المبادئ الأساسية في بصيرة أن عدم العثور على دليل كافٍ لا يتحول تلقائيًا إلى حكم بأن المحتوى خاطئ.
 
-- **Faster-Whisper** لتحويل الصوت العربي إلى نص.
-- **Embeddings + FAISS** للبحث عن المصدر والسياق.
-- **WavLM Speaker Verification** لمقارنة هوية المتحدث مع الأصوات المرجعية الموثوقة.
-- **Anti-Deepfake ONNX Model** لرصد مؤشرات الصوت الصناعي بشكل تجريبي.
-- **Human Review Policy** لتحويل الحالات غير الحاسمة أو المتعارضة إلى مراجعة بشرية بدل إصدار حكم تلقائي.
+بدل ذلك يمكن للنظام الامتناع عن الادعاء.
 
-المسار الموحد المستخدم في الواجهة:
-
-`POST /verify/audio/full`
-
-> نتائج التحقق الصوتي هي مؤشرات مساعدة وليست إثباتا جنائيا نهائيا لأصالة التسجيل. ميزة اكتشاف القص والدمج ما زالت تجريبية وغير مفعلة في مسار الـMVP لأنها لم تجتز التحقق المضبوط بشكل موثوق.
-
-للتفاصيل التقنية والقيود والتقييم: `docs/TECHNICAL_VERIFICATION.md`
-
----
-
-## Safe Abstention
-
-أحد المبادئ الأساسية في بصيرة:
-
-> **عدم وجود دليل كافٍ أفضل من اختراع إجابة.**
-
-إذا لم يتجاوز الدليل حدود الثقة التقنية، يعيد النظام:
+الفكرة:
 
 ```text
-لم يتم العثور على دليل كافٍ للتحقق من هذا المحتوى.
+Strong Evidence
+      ↓
+Return Source + Context
 ```
 
-وفي هذه الحالة لا يعرض مصدرًا أو Context Trace على أنه مؤكد.
+أما:
+
+```text
+Insufficient Evidence
+      ↓
+Do Not Invent a Source
+      ↓
+Abstain / Request Review
+```
+
+وهذا يقلل من خطر Hallucination في سيناريو التحقق.
 
 ---
 
-## Confidence Gate
+# Knowledge Base
 
-يستخدم النظام حاليًا حدودًا تقنية للتحكم في قبول نتائج الاسترجاع:
+قاعدة المعرفة في الـMVP محدودة ومقصودة لأغراض النموذج الأولي.
 
-```python
-MIN_FINAL_SCORE = 0.30
-MIN_MARGIN = 0.05
-```
+من البيانات والمصادر المستخدمة في الاختبارات:
 
-أما Quote Matching فيستخدم:
+- **HadeethEnc** — موسوعة الأحاديث النبوية.
+- **الدرر السنية** — الموسوعة الحديثية.
+- **IslamHouse** — مادة صوتية تجريبية.
 
-```python
-MIN_QUOTE_SCORE = 0.40
-MIN_QUOTE_MARGIN = 0.15
-```
-
-> هذه الحدود تخص جودة المطابقة والاسترجاع فقط، ولا تمثل درجة صحة دينية.
+لا يعتمد النظام على بحث مفتوح عشوائي على الإنترنت لإصدار نتيجة موثقة.
 
 ---
 
-## المصادر والمرجعية
+# Chunk Metadata
 
-تم تصميم بنية بصيرة بحيث تكون قاعدة المعرفة **مقيدة بمصادر موثوقة ومحددة** بدل البحث المفتوح غير المنضبط.
-
-يتضمن نموذج البيانات الحالي محتوى تجريبيًا مستوردًا من مصادر مثل:
-
-- **HadeethEnc — موسوعة الأحاديث النبوية**
-- **الدرر السنية — الموسوعة الحديثية**
-
-كما تم استخدام مادة صوتية تجريبية من:
-
-- **IslamHouse**
-
-ويحتفظ كل مقطع ببيانات Metadata تسمح بتتبعه، ومنها:
+تحتفظ المقاطع ببيانات تساعد على إعادة النتيجة إلى المصدر والسياق، مثل:
 
 ```text
 source_id
@@ -332,80 +634,469 @@ original_text
 normalized_text
 ```
 
-### مبدأ مهم
-
-يحتفظ النظام بنسختين:
-
-```text
-original_text
-```
-
-للعرض والتوثيق.
-
-و:
-
-```text
-normalized_text
-```
-
-للبحث والمطابقة.
-
-وبذلك لا نضطر إلى تغيير النص الأصلي من أجل تحسين الاسترجاع.
+هذا يسمح بفصل عملية البحث عن عملية العرض والتوثيق.
 
 ---
 
-## API
+# API Overview
 
-يعمل الـBackend باستخدام **FastAPI**.
+الـAPI مبني باستخدام:
 
-### Health Check
-
-```http
-GET /health
+```text
+FastAPI
 ```
 
-### Text Verification
+توثيق Swagger:
 
-```http
+```text
+http://127.0.0.1:8000/docs
+```
+
+ومن المسارات المستخدمة في النموذج:
+
+```text
+GET  /health
+
 POST /verify/text
-```
-
-مثال:
-
-```json
-{
-  "text": "إن الله لا ينظر إلى صوركم وأموالكم"
-}
-```
-
-### Image Verification
-
-```http
 POST /verify/image
-```
-
-يدعم حاليًا:
-
-```text
-JPG
-JPEG
-PNG
-WEBP
-```
-
-الحد الأقصى:
-
-```text
-5 MB
-```
-
-### Audio Verification
-
-```http
 POST /verify/audio
+POST /verify/speaker
+POST /verify/audio/full
 ```
 
-يدعم حاليًا:
+قد توجد مسارات إضافية تجريبية ضمن المشروع ويمكن استعراضها من Swagger.
+
+---
+
+# Automated Tests
+
+لتشغيل الاختبارات:
+
+```bash
+pytest -q
+```
+
+آخر تشغيل كامل موثق قبل التسليم:
+
+```text
+62 passed
+0 failed
+5 warnings
+```
+
+الـwarnings الحالية مرتبطة بتنبيهات Deprecation في بعض المكتبات وليست اختبارات فاشلة.
+
+تغطي الاختبارات أجزاء من:
+
+- Arabic text processing
+- Chunking
+- Embeddings
+- FAISS vector store
+- Retrieval
+- Context Trace
+- Quote Matching
+- Confidence logic
+- Verification pipeline
+- API routes
+- Image verification
+- Audio verification
+- Speaker comparison policy
+- Deepfake-related API behavior
+- Human review policy
+- Failure cases
+- Integration behavior
+
+---
+
+# Project Structure
+
+```text
+baseerah/
+│
+├── app/
+│   ├── api/
+│   │   ├── health.py
+│   │   ├── tools.py
+│   │   └── verify.py
+│   │
+│   ├── audio/
+│   │   ├── authenticity.py
+│   │   ├── deepfake_detection.py
+│   │   ├── speaker_identification.py
+│   │   ├── speaker_profiles.py
+│   │   ├── speaker_verification.py
+│   │   └── tampering_detection.py
+│   │
+│   ├── ingestion/
+│   │   ├── audio.py
+│   │   ├── chunker.py
+│   │   ├── image.py
+│   │   └── text.py
+│   │
+│   ├── models/
+│   │   └── schemas.py
+│   │
+│   ├── rag/
+│   │   ├── embeddings.py
+│   │   ├── retriever.py
+│   │   └── vector_store.py
+│   │
+│   ├── verification/
+│   │   ├── confidence.py
+│   │   ├── context_trace.py
+│   │   ├── quote_excerpt.py
+│   │   ├── quote_matcher.py
+│   │   ├── review_policy.py
+│   │   └── verifier.py
+│   │
+│   └── main.py
+│
+├── Frontend /baseerah-separated/
+│
+├── data/
+│   ├── deepfake_calibration/
+│   ├── demo/
+│   ├── processed/
+│   ├── raw/
+│   ├── speaker_calibration/
+│   └── voice_profiles/
+│
+├── docs/
+├── scripts/
+├── tests/
+│
+├── .env.example
+├── requirements.txt
+├── railpack.json
+├── railway.json
+└── README.md
+```
+
+> ملاحظة: اسم مجلد الواجهة في النسخة الحالية يحتوي على مسافة ضمن `Frontend `، والمسار المستخدم في التطبيق متوافق معه.
+
+---
+
+# Tech Stack
+
+## Backend
+
+```text
+Python
+FastAPI
+Pydantic
+Uvicorn
+```
+
+## Retrieval / NLP
+
+```text
+Sentence Transformers
+FAISS
+Transformers
+PyTorch
+```
+
+## Image
+
+```text
+EasyOCR
+OpenCV
+Pillow
+```
+
+## Audio
+
+```text
+Faster-Whisper
+WavLM
+FFmpeg
+ONNX Runtime
+```
+
+## Frontend
+
+```text
+HTML
+CSS
+JavaScript
+```
+
+## Testing
+
+```text
+Pytest
+FastAPI TestClient
+```
+
+---
+
+# Deployment
+
+المشروع يحتوي على إعدادات Railway:
+
+```text
+railpack.json
+railway.json
+```
+
+ويستخدم:
+
+```text
+RAILPACK
+```
+
+لبناء بيئة التشغيل.
+
+يتم تثبيت:
+
+```text
+FFmpeg
+```
+
+كـSystem Dependency ضمن بيئة Railway.
+
+أمر التشغيل:
+
+```text
+uvicorn app.main:app --host 0.0.0.0 --port $PORT
+```
+
+Health Check:
+
+```text
+/health
+```
+
+---
+
+# Privacy & Secrets
+
+لا يجب رفع بيانات حساسة إلى المستودع.
+
+المشروع يستخدم:
+
+```text
+.env.example
+```
+
+كنموذج فقط.
+
+ويجب إبقاء العناصر التالية خارج Git:
+
+```text
+.env
+API Keys
+Tokens
+Credentials
+.venv
+Local Model Caches
+```
+
+---
+
+# حدود الـMVP
+
+**بصيرة حاليًا Hackathon MVP / Prototype وليست خدمة إنتاجية نهائية.**
+
+من الحدود الحالية:
+
+1. قاعدة المعرفة محدودة مقارنة بمنصة إنتاجية كاملة.
+2. جودة OCR تعتمد على جودة الصورة والخط.
+3. جودة Speech-to-Text تعتمد على وضوح التسجيل.
+4. نتائج الاسترجاع هي مؤشرات تقنية وليست أحكامًا شرعية.
+5. Speaker Similarity ليست إثباتًا نهائيًا لهوية المتحدث.
+6. Threshold الخاص بمقارنة المتحدثين ما زال MVP Threshold ولم تتم معايرته على Dataset إنتاجية واسعة.
+7. اكتشاف الصوت الصناعي ما زال إشارة تجريبية.
+8. تحليل القص والدمج والمؤشرات الصوتية يحتاج Dataset وتقييمًا أوسع قبل الاعتماد الإنتاجي.
+9. أول تشغيل لبعض النماذج قد يكون أبطأ بسبب تحميل ملفات النموذج.
+10. الأداء يعتمد على موارد الجهاز وذاكرته.
+11. أي استخدام حقيقي واسع النطاق يحتاج مراجعة علمية وبشرية وحوكمة للمصادر.
+
+---
+
+# What BASEERAH Does Not Claim
+
+بصيرة لا يدعي أن:
+
+```text
+AI replaces scholars.
+```
+
+ولا أن:
+
+```text
+A similarity score proves identity.
+```
+
+ولا أن:
+
+```text
+No retrieved evidence = false content.
+```
+
+ولا أن:
+
+```text
+Experimental deepfake detection = forensic proof.
+```
+
+الهدف هو تقديم **Evidence-Assisted Verification** مع إظهار حدود الثقة بوضوح.
+
+---
+
+# Why Context Matters
+
+قد يكون الاقتباس صحيحًا حرفيًا لكنه:
+
+- مقتطعًا من سياق أطول.
+- منسوبًا إلى مصدر غير صحيح.
+- جزءًا من شرح تم حذف ما قبله أو بعده.
+- متداولًا بصياغة تغير المعنى.
+- مأخوذًا من تسجيل أطول دون الإشارة إلى المصدر.
+
+لهذا لا يقتصر بصيرة على سؤال:
+
+```text
+هل هذه الجملة موجودة؟
+```
+
+بل يحاول أيضًا الإجابة عن:
+
+```text
+ما المصدر؟
+ما النص المرتبط؟
+ما السياق؟
+ما قوة الدليل؟
+هل توجد معلومات كافية لإعطاء نتيجة؟
+```
+
+---
+
+# Verification Philosophy
+
+المبدأ المستخدم في تصميم بصيرة:
+
+```text
+Retrieve Evidence
+      ↓
+Measure Confidence
+      ↓
+Expose Source
+      ↓
+Expose Context
+      ↓
+Abstain When Needed
+```
+
+بدل:
+
+```text
+Generate a confident answer without evidence
+```
+
+---
+
+# Demo Checklist
+
+قبل العرض يمكن التحقق سريعًا من النظام بالترتيب التالي:
+
+### 1. Health
+
+```bash
+curl http://127.0.0.1:8000/health
+```
+
+### 2. Text
+
+```bash
+curl -X POST http://127.0.0.1:8000/verify/text \
+  -H "Content-Type: application/json" \
+  -d '{"text":"إن الله لا ينظر إلى صوركم وأموالكم"}'
+```
+
+### 3. Image
+
+```bash
+curl --max-time 180 -X POST \
+  http://127.0.0.1:8000/verify/image \
+  -F "image=@data/demo/hadeethenc/hadith_test.jpg"
+```
+
+### 4. Audio
+
+```bash
+curl --max-time 300 -X POST \
+  http://127.0.0.1:8000/verify/audio \
+  -F "audio=@data/demo/audio/islamhouse_hadith_test_60s.wav;type=audio/wav"
+```
+
+### 5. Speaker Comparison
+
+```bash
+curl --max-time 300 -X POST \
+  http://127.0.0.1:8000/verify/speaker \
+  -F "reference_audio=@data/speaker_calibration/binbaz/test_01.wav;type=audio/wav" \
+  -F "candidate_audio=@data/speaker_calibration/binothaimeen/test_01.wav;type=audio/wav"
+```
+
+### 6. Tests
+
+```bash
+pytest -q
+```
+
+Expected reference test status:
+
+```text
+62 passed
+0 failed
+```
+
+---
+
+# Troubleshooting
+
+## `ffmpeg` not found
+
+إذا ظهر خطأ متعلق بـ:
+
+```text
+No such file or directory: ffmpeg
+```
+
+ثبت FFmpeg ثم أعد تشغيل الخادم:
+
+```bash
+brew install ffmpeg
+```
+
+أو على Ubuntu:
+
+```bash
+sudo apt install ffmpeg
+```
+
+---
+
+## أول طلب بطيء
+
+هذا متوقع عند أول استخدام لبعض المكونات، لأن نماذج مثل OCR أو Speech/Speaker Models قد تحتاج إلى التحميل والتهيئة.
+
+انتظر اكتمال أول طلب قبل الحكم على سرعة الطلبات التالية.
+
+---
+
+## Model Download
+
+قد تحتاج بعض النماذج إلى الوصول إلى Hugging Face عند أول تشغيل.
+
+عدم وجود Hugging Face Token لا يمنع بالضرورة تنزيل النماذج العامة، لكن قد تظهر تحذيرات مرتبطة بالطلبات غير الموثقة أو Rate Limits.
+
+---
+
+## Unsupported Audio Format
+
+الصيغ المدعومة في API تشمل:
 
 ```text
 MP3
@@ -415,438 +1106,141 @@ OGG
 WEBM
 ```
 
-الحد الأقصى:
-
-```text
-25 MB
-```
-
----
-
-## مثال على نتيجة التحقق
-
-عند العثور على دليل مناسب يمكن أن تعيد الـAPI بنية تحتوي على:
-
-```json
-{
-  "status": "evidence_found",
-  "message": "تم العثور على دليل ذي صلة في مصدر معتمد.",
-  "evidence_score": {
-    "final_score": 0.6458,
-    "margin": 0.1605
-  },
-  "source": {
-    "source_id": "dorar-bukhari-1519",
-    "document_title": "أي الأعمال أفضل؟"
-  },
-  "context_trace": {
-    "previous": null,
-    "current": {},
-    "next": null
-  }
-}
-```
-
----
-
-## هيكل المشروع
-
-```text
-baseerah/
-│
-├── app/
-│   ├── api/
-│   │   ├── health.py
-│   │   └── verify.py
-│   │
-│   ├── ingestion/
-│   │   ├── text.py
-│   │   ├── image.py
-│   │   ├── audio.py
-│   │   └── chunker.py
-│   │
-│   ├── models/
-│   │   └── schemas.py
-│   │
-│   ├── rag/
-│   │   ├── embeddings.py
-│   │   ├── vector_store.py
-│   │   └── retriever.py
-│   │
-│   ├── verification/
-│   │   ├── confidence.py
-│   │   ├── context_trace.py
-│   │   ├── quote_matcher.py
-│   │   └── verifier.py
-│   │
-│   └── main.py
-│
-├── data/
-│   ├── raw/
-│   ├── processed/
-│   └── demo/
-│
-├── docs/
-│   ├── assets/
-│   │   └── baseerah-banner.png
-│   └── evidence/
-│
-├── scripts/
-│   ├── fetch_hadeethenc.py
-│   ├── prepare_hadeethenc.py
-│   └── ingest_sources.py
-│
-├── tests/
-│
-├── .env.example
-├── .gitignore
-├── requirements.txt
-└── README.md
-```
-
----
-
-## تشغيل المشروع
-
-### 1. Clone
+عند اختبار WAV باستخدام `curl` يفضل تحديد MIME Type صراحة:
 
 ```bash
-git clone https://github.com/Danakaabi/baseerah.git
-cd baseerah
-```
-
-### 2. إنشاء Virtual Environment
-
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-```
-
-### 3. تثبيت Dependencies
-
-```bash
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-```
-
-### 4. تشغيل الـAPI
-
-```bash
-uvicorn app.main:app --reload
-```
-
-بعد التشغيل:
-
-```text
-http://127.0.0.1:8000
-```
-
-Swagger:
-
-```text
-http://127.0.0.1:8000/docs
+-F "audio=@file.wav;type=audio/wav"
 ```
 
 ---
 
-## تشغيل الاختبارات
+## UI
 
-```bash
-pytest -q
-```
-
-آخر نتيجة موثقة أثناء تطوير النموذج:
+إذا كان الخادم يعمل، افتح:
 
 ```text
-33 passed
-0 failed
+http://127.0.0.1:8000/ui/
 ```
 
-تشمل الاختبارات:
-
-- Arabic normalization.
-- Chunking.
-- Embeddings.
-- Vector Store.
-- Hybrid Retrieval.
-- Context Trace.
-- Verification Engine.
-- Confidence Gate.
-- Text API.
-- Image API.
-- Audio API.
-- Failure cases.
-
----
-
-## أدلة التنفيذ
-
-يحتوي المشروع على أدلة تشغيل محفوظة في:
+أو:
 
 ```text
-docs/evidence/
+http://127.0.0.1:8000/
 ```
 
-ومنها:
+---
+
+# Technical Documentation
+
+للمزيد من التفاصيل التقنية راجع مجلد:
 
 ```text
-audio_evidence_found.txt
-audio_safe_abstention.txt
-stage11_final_api.txt
+docs/
 ```
 
-وهي توثق حالات مثل:
+ومن الملفات المرتبطة بالتحقق الصوتي وسياسة العرض:
 
 ```text
-Audio → Evidence Found
-Audio → Safe Abstention
-Text API
-Image API
-Audio API
-33 Passing Tests
+docs/TECHNICAL_VERIFICATION.md
+docs/SPEAKER_COMPARISON_DEMO_POLICY.md
 ```
 
 ---
 
-## تجهيز البيانات
+# الفريق
 
-يمكن تجهيز بيانات HadeethEnc الموجودة محليًا باستخدام:
+**فريق أثَر | ATHAR — #368**
 
-```bash
-python -m scripts.prepare_hadeethenc
-```
-
-ثم بناء المقاطع المفهرسة:
-
-```bash
-python -m scripts.ingest_sources
-```
-
-كما يدعم:
-
-```bash
-python -m scripts.fetch_hadeethenc
-```
-
-جلب سجلات HadeethEnc وفق المعرّفات المحددة.
-
-> هذه الآلية توسّع ingestion حسب IDs المعروفة، وليست Crawler عامًا لكامل الموسوعة.
-
----
-
-## مبادئ السلامة
-
-صُممت بصيرة وفق مجموعة مبادئ أساسية:
-
-### Source First
-
-لا يتم تقديم مصدر غير موجود داخل قاعدة المعرفة على أنه دليل مؤكد.
-
-### Traceability
-
-كل دليل مسترجع يحتفظ ببيانات المصدر اللازمة لتتبعه.
-
-### Context Before Judgment
-
-وجود تطابق نصي وحده لا يكفي لفهم المحتوى، لذلك يعرض النظام السياق المرتبط به عندما يكون متاحًا.
-
-### Safe Abstention
-
-عند عدم كفاية الدليل، يمتنع النظام عن الادعاء.
-
-### Separation of Scores
-
-درجة FAISS أو Quote Matching:
-
-```text
-Technical Retrieval Score
-```
-
-وليست:
-
-```text
-Religious Authenticity Score
-```
-
-### Human Review
-
-بصيرة أداة مساعدة للتحقق والوصول إلى الأدلة، وليست بديلًا عن المختصين أو الجهات العلمية.
-
----
-
-## ما تم تنفيذه فعليًا
-
-- [x] FastAPI backend
-- [x] Arabic normalization
-- [x] Trusted-source ingestion
-- [x] Chunking with metadata
-- [x] Multilingual embeddings
-- [x] FAISS vector search
-- [x] Hybrid RAG
-- [x] Quote matching
-- [x] Confidence Gate
-- [x] Safe Abstention
-- [x] Context Trace
-- [x] Text verification API
-- [x] Arabic image OCR
-- [x] Image verification API
-- [x] Arabic audio transcription
-- [x] Audio verification API
-- [x] Unified verification architecture
-- [x] Automated tests
-- [x] Evidence documentation
-
----
-
-## حالة النموذج الأولي
-
-```text
-Backend Core          ✅
-Text Verification     ✅
-Image Verification    ✅
-Audio Verification    ✅
-Hybrid RAG            ✅
-Context Trace         ✅
-Safe Abstention       ✅
-Automated Tests       ✅
-Frontend Integration  ⏳
-Final E2E Demo         ⏳
-```
-
-الـBackend قابل للتشغيل والاختبار حاليًا.
-
-ربط واجهة HTML/CSS/JavaScript الخاصة بالنموذج هو مرحلة التكامل التالية.
-
----
-
-## حدود النموذج الحالي
-
-بصيرة حاليًا **Hackathon MVP / Prototype** وليست خدمة إنتاجية نهائية.
-
-من الحدود الحالية:
-
-- قاعدة المعرفة ما زالت محدودة لأغراض النموذج الأولي.
-- دقة OCR وASR تعتمد على جودة الصورة أو التسجيل.
-- التشابه الدلالي لا يثبت وحده صحة النسبة.
-- النظام الحالي لا يصدر فتوى.
-- النظام لا يحكم على الأشخاص أو الجماعات.
-- نتائج الاسترجاع هي أدلة تقنية مساعدة وليست أحكامًا شرعية.
-- يلزم توسيع التقييم على Dataset أكبر قبل أي استخدام إنتاجي.
-- يلزم توسيع المصادر الموثوقة وربطها وفق حقوق الاستخدام وسياسات الجهات المالكة.
-
----
-
-## التوسع المستقبلي
-
-بعد إثبات النموذج الأولي يمكن تطوير بصيرة نحو:
-
-```text
-Trusted Source APIs
-        ↓
-Larger Knowledge Base
-        ↓
-Advanced Context Trace
-        ↓
-Human Review Workflow
-        ↓
-Source Provenance
-        ↓
-Multimodal Verification
-```
-
-ومن الأفكار المستقبلية أيضًا **التوثيق الاستباقي** للمحتوى الأصلي بحيث تتمكن الجهات أو أصحاب المحتوى من تسجيل الأصل والسياق وقت النشر، ثم الرجوع إليه عند انتشار نسخ مقتطعة أو منسوبة بصورة غير صحيحة.
-
----
-
-## Demo
-
-Frontend prototype:
-
-https://melodious-shortbread-c18ef9.netlify.app/
-
-> واجهة العرض الحالية تمثل تجربة المستخدم للنموذج الأولي، ويجري ربطها بالـBackend الموجود في هذا المستودع.
-
----
-
-## الفريق
-
-### فريق أثَر | ATHAR — #368
-
-| العضو | المساهمة في المشروع |
+| العضو | المساهمة |
 |---|---|
-| **دانا الكعبي** | Technical Lead — AI Architecture, Backend, RAG & Verification Engineering |
-| **ريما العتيبي** | Frontend — HTML/CSS/JavaScript |
-| **جنى زهير المشهراوي** | UI/UX Support |
-| **لمى الحربي** | Islamic Content Research & Review |
+| دانا الكعبي | Technical Lead — AI Architecture, Backend, RAG & Verification Engineering |
+| ريما العتيبي | Frontend — HTML / CSS / JavaScript |
+| جنى زهير المشهراوي | UI/UX Support |
+| لمى الحربي | Islamic Content Research & Review |
+
+---
+
+# Hackathon Scope
 
 تم تطوير بصيرة كنموذج أولي ضمن **Islamic AI Challenge Hackathon**.
 
----
-
-## Tech Stack
+يركز الـMVP على إثبات إمكانية بناء Pipeline يربط بين:
 
 ```text
-Python 3.13
-FastAPI
-Pydantic
-Sentence Transformers
-FAISS
-EasyOCR
-Faster-Whisper
-PyTorch
-Pytest
-HTTPX
-Uvicorn
+Multimodal Input
+        ↓
+AI Extraction
+        ↓
+Trusted Retrieval
+        ↓
+Context Trace
+        ↓
+Evidence-Aware Decision
 ```
 
----
-
-## الخصوصية والأسرار
-
-لا يجب رفع:
-
-```text
-.env
-API Keys
-Tokens
-Credentials
-Virtual Environments
-Local Model Caches
-```
-
-إلى GitHub.
-
-يحتوي المستودع على:
-
-```text
-.env.example
-```
-
-كمثال فقط عند الحاجة إلى متغيرات بيئية.
+مع إضافة طبقة تجريبية للتحليل الصوتي ومقارنة المتحدث.
 
 ---
 
-## ملاحظة للجنة التحكيم
+# Future Development
 
-الهدف من النموذج ليس تقديم حكم ديني آلي.
+بعد إثبات النموذج الأولي يمكن تطوير بصيرة عبر:
 
-الهدف هو إثبات إمكانية بناء مسار تقني قابل للتفسير:
+- توسيع قاعدة المصادر الموثوقة.
+- بناء Source Ingestion Pipeline أوسع.
+- إضافة توثيق رقمي استباقي للمحتوى الأصلي.
+- توسيع Dataset الخاص بتقييم الصوت.
+- معايرة Speaker Verification Thresholds بشكل علمي.
+- تحسين Audio Tampering Detection.
+- تحسين Synthetic Voice Detection.
+- إضافة Human Review Dashboard.
+- إضافة Provenance Tracking.
+- إضافة انتشار المحتوى وربط النسخ المتداولة بالمصدر الأصلي.
+- تحسين الأداء للنشر الإنتاجي.
+- إضافة Monitoring وObservability.
+- إضافة صلاحيات وحوكمة للجهات الموثقة.
+
+---
+
+# ملاحظة للجنة التحكيم
+
+بصيرة لا يطلب من المستخدم الثقة في إجابة مولدة فقط.
+
+جوهر النظام هو:
 
 ```text
 محتوى متداول
       ↓
-استخراج وفهم المدخل
+استخراج المحتوى
       ↓
-البحث داخل مصادر موثوقة
+البحث داخل مصادر محددة
       ↓
-قياس قوة الدليل
+استرجاع الدليل
+      ↓
+قياس قوة النتيجة
       ↓
 إظهار المصدر والسياق
       ↓
 أو الامتناع عند عدم كفاية الدليل
 ```
 
-**بصيرة لا تطلب من المستخدم أن يثق في إجابة الذكاء الاصطناعي فقط؛ بل تعيده إلى الدليل الذي يمكنه مراجعته.**
+وبالنسبة للصوت:
+
+```text
+المحتوى الصوتي
+      ↓
+تحويل إلى نص + تحليل إشارات مساعدة
+      ↓
+البحث عن المصدر
+      ↓
+مقارنة المتحدث عند توفر مرجع
+      ↓
+إظهار النتائج بدرجاتها وحدودها
+      ↓
+مراجعة بشرية للحالات غير الحاسمة
+```
+
+**الهدف هو إعادة المستخدم إلى الدليل القابل للمراجعة، وليس استبدال المرجعية العلمية.**
 
 ---
 
@@ -856,8 +1250,4 @@ Local Model Caches
 
 <p align="center">
   افحص المصدر • راجع السياق • ثم قرر هل تشارك
-</p>
-
-<p align="center">
-  فريق أثَر | ATHAR — #368
 </p>
