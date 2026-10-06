@@ -1,3 +1,4 @@
+from __future__ import annotations
 from functools import lru_cache
 from pathlib import Path
 import subprocess
@@ -5,8 +6,7 @@ import tempfile
 import wave
 
 import numpy as np
-import torch
-from transformers import AutoFeatureExtractor, WavLMForXVector
+
 
 
 MODEL_NAME = "microsoft/wavlm-base-plus-sv"
@@ -14,6 +14,9 @@ MODEL_NAME = "microsoft/wavlm-base-plus-sv"
 
 @lru_cache(maxsize=1)
 def get_speaker_model():
+    import torch
+    from transformers import AutoFeatureExtractor, WavLMForXVector
+
     feature_extractor = AutoFeatureExtractor.from_pretrained(
         MODEL_NAME
     )
@@ -21,11 +24,7 @@ def get_speaker_model():
         MODEL_NAME
     )
 
-    device = (
-        "mps"
-        if torch.backends.mps.is_available()
-        else "cpu"
-    )
+    device = "cpu"
 
     model = model.to(device)
     model.eval()
@@ -105,6 +104,7 @@ def load_wav_pcm16(
 def extract_speaker_embedding(
     audio_path: str | Path,
 ) -> np.ndarray:
+    import torch
     wav_path = convert_to_wav_16k_mono(
         audio_path
     )

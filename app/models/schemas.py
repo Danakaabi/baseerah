@@ -53,6 +53,19 @@ class EvidenceScore(BaseModel):
     margin: float
 
 
+class QuoteExcerpt(BaseModel):
+    """Exact normalized token match, with original source character offsets."""
+
+    match_type: str = "normalized_token_match"
+    matched_text: str
+    before: str
+    after: str
+    start_char: int = Field(ge=0)
+    end_char: int = Field(ge=0)
+    is_partial_chunk: bool
+    audio_origin_verified: bool = False
+
+
 class VerificationResult(BaseModel):
     """Explainable BASEERAH verification result."""
 
@@ -62,6 +75,7 @@ class VerificationResult(BaseModel):
     evidence_score: EvidenceScore | None = None
     source: DocumentChunk | None = None
     context_trace: ContextTrace | None = None
+    quote_excerpt: QuoteExcerpt | None = None
 
 
 class VerifyTextRequest(BaseModel):

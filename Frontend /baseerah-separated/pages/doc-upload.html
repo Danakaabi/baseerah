@@ -5,33 +5,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>توثيق مقطع جديد | بصيرة</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/styles.css">
 </head>
 <body>
 <div class="phone">
-  <div class="notch"></div>
-  <div class="statusbar"><span>8:15</span><span>🔕 📶 🔋</span></div>
+
+
   <div class="top">
     <button class="iconbtn" onclick="goBack()" aria-label="رجوع">›</button>
     <div class="crumb">بصيرة</div>
     <div class="spacer32"></div>
   </div>
   <div class="steprow"><div class="dot done">✓</div><div class="seg done"></div><div class="dot active">2</div><div class="seg"></div><div class="dot">3</div></div>
-  <main class="screen">
-    
-<div class="h1 disp">توثيق مقطع جديد</div>
-<div class="card">
-  <div class="field" id="up-doc">⬆ اسحب الملف الصوتي هنا أو اختره</div>
-  <input type="file" accept="audio/*" id="file-doc" hidden>
-  <div class="wave" id="wv3"></div>
-  <label>عنوان المقطع</label>
-  <input class="inp" placeholder="مثال: فتوى الجمعة - 28 سبتمبر">
-  <button class="btn" onclick="go('doc-confirm')">توليد البصمة الرقمية</button>
-</div>
-
-  </main>
-  <nav class="tabbar"><a href="../index.html" class=""><span class="ti">⌂</span>الرئيسية</a><a href="tools.html" class=""><span class="ti">♡</span>محبة الأدوات</a><a href="authors.html" class=""><span class="ti">▤</span>المؤلفات</a><a href="more.html" class=""><span class="ti">⋯</span>المزيد</a></nav>
+  <main class="screen"><h1>تسجيل بصمة ملف</h1><form id="fingerprintForm" class="card"><label class="upload" for="fingerprint">الملف الصوتي<input type="file" id="fingerprint" accept=".mp3,.wav,.m4a,.ogg,.webm"><span class="file-label">اختر ملفًا أو اسحبه هنا</span></label><label for="documentName">عنوان المقطع</label><input id="documentName" maxlength="200" required class="inp"><button class="btn">حساب البصمة وتسجيلها</button><p class="status" role="status" aria-live="polite"></p></form><h2>مقارنة نسخة بالسجل</h2><form id="fingerprintCheckForm" class="card"><label class="upload" for="fingerprintCheck">النسخة المراد فحصها<input type="file" id="fingerprintCheck" accept=".mp3,.wav,.m4a,.ogg,.webm"><span class="file-label">اختر ملفًا</span></label><button class="btn ghost">البحث عن بصمة مطابقة</button><p class="status" role="status" aria-live="polite"></p></form></main>
+  <nav class="tabbar"><a href="../index.html" class=""><span class="ti">⌂</span>الرئيسية</a><a href="tools.html" class=""><span class="ti">♡</span>الأدوات</a><a href="authors.html" class=""><span class="ti">▤</span>المؤلفات</a><a href="more.html" class=""><span class="ti">⋯</span>المزيد</a></nav>
 </div>
 <script src="../js/app.js"></script>
 </body>

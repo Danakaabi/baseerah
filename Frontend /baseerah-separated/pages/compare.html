@@ -5,38 +5,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>مقارنة مقطعين | بصيرة</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/styles.css">
 </head>
 <body>
 <div class="phone">
-  <div class="notch"></div>
-  <div class="statusbar"><span>8:15</span><span>🔕 📶 🔋</span></div>
+
+
   <div class="top">
     <button class="iconbtn" onclick="goBack()" aria-label="رجوع">›</button>
     <div class="crumb">بصيرة</div>
     <div class="spacer32"></div>
   </div>
-  
-  <main class="screen">
-    
-<div class="h1 disp">مقارنة مقطعين</div>
-<div class="card">
-  <label>المقطع الأول</label>
-  <div class="field" id="up-cmp1">⬆ اختر المقطع الأول</div>
-  <input type="file" accept="audio/*" id="file-cmp1" hidden>
-  <div class="wave" id="wv1"></div>
 
-  <label>المقطع الثاني</label>
-  <div class="field" id="up-cmp2">⬆ اختر المقطع الثاني</div>
-  <input type="file" accept="audio/*" id="file-cmp2" hidden>
-  <div class="wave" id="wv2"></div>
-
-  <button class="btn" onclick="go('compare-r')">مقارنة المقطعين</button>
-</div>
-
-  </main>
-  <nav class="tabbar"><a href="../index.html" class=""><span class="ti">⌂</span>الرئيسية</a><a href="tools.html" class=""><span class="ti">♡</span>محبة الأدوات</a><a href="authors.html" class=""><span class="ti">▤</span>المؤلفات</a><a href="more.html" class=""><span class="ti">⋯</span>المزيد</a></nav>
+  <main class="screen"><h1>مقارنة صوتين</h1><p class="muted-copy">المقارنة تقيس تشابه المتحدث، ولا تثبت تطابق التسجيل أو عدم القص.</p><form id="compareForm" class="card"><label class="upload" for="reference">الصوت المرجعي<input type="file" id="reference" accept=".mp3,.wav,.m4a,.ogg,.webm"><span class="file-label">اختر ملفًا أو اسحبه هنا</span></label><label class="upload" for="candidate">الصوت المراد مقارنته<input type="file" id="candidate" accept=".mp3,.wav,.m4a,.ogg,.webm"><span class="file-label">اختر ملفًا أو اسحبه هنا</span></label><button class="btn">مقارنة المقطعين</button><p class="status" role="status" aria-live="polite"></p></form></main>
+  <nav class="tabbar"><a href="../index.html" class=""><span class="ti">⌂</span>الرئيسية</a><a href="tools.html" class=""><span class="ti">♡</span>الأدوات</a><a href="authors.html" class=""><span class="ti">▤</span>المؤلفات</a><a href="more.html" class=""><span class="ti">⋯</span>المزيد</a></nav>
 </div>
 <script src="../js/app.js"></script>
 </body>

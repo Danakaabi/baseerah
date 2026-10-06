@@ -1,7 +1,7 @@
 from functools import lru_cache
 from pathlib import Path
 
-import easyocr
+
 
 
 SUPPORTED_IMAGE_EXTENSIONS = {
@@ -13,10 +13,12 @@ SUPPORTED_IMAGE_EXTENSIONS = {
 
 
 @lru_cache(maxsize=1)
-def get_ocr_reader() -> easyocr.Reader:
+def get_ocr_reader():
     """
     Load and reuse the Arabic EasyOCR reader.
     """
+
+    import easyocr
 
     return easyocr.Reader(
         ["ar"],

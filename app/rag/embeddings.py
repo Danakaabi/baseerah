@@ -1,7 +1,7 @@
 from functools import lru_cache
 
 import numpy as np
-from sentence_transformers import SentenceTransformer
+
 
 from app.ingestion.text import normalize_arabic
 
@@ -13,13 +13,15 @@ MODEL_NAME = (
 
 
 @lru_cache(maxsize=1)
-def get_embedding_model() -> SentenceTransformer:
+def get_embedding_model():
     """
     Load the embedding model once and reuse it.
 
     Caching is important because loading the model repeatedly
     would make BASEERAH unnecessarily slow.
     """
+
+    from sentence_transformers import SentenceTransformer
 
     return SentenceTransformer(MODEL_NAME)
 

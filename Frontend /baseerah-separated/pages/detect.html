@@ -5,34 +5,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>التحقق الصوتي | بصيرة</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/styles.css">
 </head>
 <body>
 <div class="phone">
-  <div class="notch"></div>
-  <div class="statusbar"><span>8:15</span><span>🔕 📶 🔋</span></div>
+
+
   <div class="top">
     <button class="iconbtn" onclick="goBack()" aria-label="رجوع">›</button>
     <div class="crumb">بصيرة</div>
     <div class="spacer32"></div>
   </div>
-  
-  <main class="screen">
-    
-<div class="h1 disp">التحقق الصوتي</div>
-<div class="card">
-  <div class="field" id="up-detect">⬆ اختر مقطعًا صوتيًا للفحص</div>
-  <input type="file" accept="audio/*" id="file-detect" hidden>
-  <button class="btn block" id="verifyAudioBtn">ابدأ التحقق</button>
 
-<p id="audioStatus"
-   style="display:none;color:var(--muted);font-size:13px;text-align:center;margin-top:12px;">
-</p>
-</div>
-
-  </main>
-  <nav class="tabbar"><a href="../index.html" class=""><span class="ti">⌂</span>الرئيسية</a><a href="tools.html" class=""><span class="ti">♡</span>محبة الأدوات</a><a href="authors.html" class=""><span class="ti">▤</span>المؤلفات</a><a href="more.html" class=""><span class="ti">⋯</span>المزيد</a></nav>
+  <main class="screen"><h1>التحقق الصوتي</h1><p class="lead">تحليل واحد يجمع المحتوى والمصدر والسياق وهوية المتحدث ومؤشرات الصوت الصناعي.</p><form id="audioForm" class="card"><label class="upload" for="audio">المقطع الصوتي<input type="file" id="audio" accept=".mp3,.wav,.m4a,.ogg,.webm"><span class="file-label">اختر ملفًا أو اسحبه هنا</span></label><p class="muted-copy">MP3، WAV، M4A، OGG، WEBM · حتى 25 MB</p><button class="btn">ابدأ التحقق</button><p class="status" role="status" aria-live="polite"></p></form></main>
+  <nav class="tabbar"><a href="../index.html" class=""><span class="ti">⌂</span>الرئيسية</a><a href="tools.html" class=""><span class="ti">♡</span>الأدوات</a><a href="authors.html" class=""><span class="ti">▤</span>المؤلفات</a><a href="more.html" class=""><span class="ti">⋯</span>المزيد</a></nav>
 </div>
 <script src="../js/app.js"></script>
 </body>

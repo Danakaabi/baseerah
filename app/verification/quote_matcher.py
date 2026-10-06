@@ -3,6 +3,7 @@ from difflib import SequenceMatcher
 
 from app.ingestion.text import normalize_arabic
 from app.models.schemas import DocumentChunk
+from app.verification.quote_excerpt import locate_quote_excerpt
 
 
 MIN_QUOTE_SCORE = 0.70
@@ -16,6 +17,7 @@ class QuoteMatch:
     chunk: DocumentChunk
     score: float
     margin: float
+    query: str
 
 
 def find_quote_match(
@@ -32,7 +34,8 @@ def find_quote_match(
     if not candidates or not chunks:
         return None
 
-    matches: list[tuple[float, DocumentChunk]] = []
+    # Compare distinct chunks, not duplicate candidates from the same input.
+    matches_by_chunk: dict[str, tuple[float, DocumentChunk, str]] = {}
 
     for candidate in candidates:
         if not isinstance(candidate, str):
@@ -53,11 +56,13 @@ def find_quote_match(
                 query,
                 source,
             ).ratio()
+            if locate_quote_excerpt(candidate, chunk.original_text) is not None:
+                score = 1.0
+            existing = matches_by_chunk.get(chunk.chunk_id)
+            if existing is None or score > existing[0]:
+                matches_by_chunk[chunk.chunk_id] = (score, chunk, candidate)
 
-            matches.append(
-                (score, chunk)
-            )
-
+    matches = list(matches_by_chunk.values())
     if not matches:
         return None
 
@@ -66,7 +71,7 @@ def find_quote_match(
         reverse=True,
     )
 
-    best_score, best_chunk = matches[0]
+    best_score, best_chunk, best_query = matches[0]
 
     second_score = (
         matches[1][0]
@@ -89,4 +94,5 @@ def find_quote_match(
         chunk=best_chunk,
         score=best_score,
         margin=margin,
+        query=best_query,
     )

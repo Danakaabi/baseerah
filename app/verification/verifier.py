@@ -6,6 +6,7 @@ from app.rag.retriever import Retriever
 from app.verification.confidence import evaluate_evidence
 from app.verification.context_trace import get_context_trace
 from app.verification.quote_matcher import find_quote_match
+from app.verification.quote_excerpt import locate_quote_excerpt
 
 
 INSUFFICIENT_EVIDENCE_MESSAGE = (
@@ -31,15 +32,7 @@ class Verifier:
         if not query.strip():
             raise ValueError("query cannot be empty")
 
-        results = self.retriever.search(
-            query=query,
-            top_k=3,
-        )
-
-        return self._build_result(
-            query=query,
-            results=results,
-        )
+        return self.verify_quote_candidates([query], strict_semantic=False)
 
     def verify_candidates(
         self,
@@ -100,6 +93,8 @@ class Verifier:
     def verify_quote_candidates(
         self,
         candidates: list[str],
+        *,
+        strict_semantic: bool = True,
     ) -> VerificationResult:
         """
         Verify OCR/ASR candidates using strong lexical
@@ -137,12 +132,15 @@ class Verifier:
             )
 
             return VerificationResult(
-                query=cleaned_candidates[0],
+                query=quote_match.query,
                 status="evidence_found",
                 message=SUPPORTED_EVIDENCE_MESSAGE,
                 evidence_score=evidence_score,
                 source=quote_match.chunk,
                 context_trace=context_trace,
+                quote_excerpt=locate_quote_excerpt(
+                    quote_match.query, quote_match.chunk.original_text
+                ),
             )
 
         result = self.verify_candidates(
@@ -152,7 +150,8 @@ class Verifier:
         # ASR/OCR input is noisy, so semantic retrieval
         # must meet a stricter evidence gate.
         if (
-            result.status == "evidence_found"
+            strict_semantic
+            and result.status == "evidence_found"
             and result.evidence_score is not None
             and (
                 result.evidence_score.final_score < 0.72
@@ -213,4 +212,5 @@ class Verifier:
             evidence_score=evidence_score,
             source=best.chunk,
             context_trace=context_trace,
+            quote_excerpt=locate_quote_excerpt(query, best.chunk.original_text),
         )

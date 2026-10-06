@@ -75,3 +75,8 @@ htmlcov/
 # 10. Large Demo Media
 # --------------------------------------------------
 data/demo/audio/islamhouse_hadith_test.mp3
+
+# Device demo registry
+data/runtime/
+
+node_modules/

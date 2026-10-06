@@ -58,6 +58,10 @@ ALLOWED_AUDIO_TYPES = {
 
 MAX_AUDIO_SIZE = 25 * 1024 * 1024
 
+# Conservative demo policy after observed cross-speaker scores up to 0.922.
+# This is not a validated identity threshold or a probability of a match.
+SPEAKER_COMPARISON_THRESHOLD = 0.95
+
 
 @lru_cache(maxsize=1)
 def get_verifier() -> Verifier:
@@ -296,7 +300,7 @@ async def verify_speaker(
             ),
         )
 
-        if similarity >= 0.90:
+        if similarity >= SPEAKER_COMPARISON_THRESHOLD:
             interpretation = "strong_match"
         elif similarity >= 0.80:
             interpretation = "uncertain"
@@ -310,6 +314,8 @@ async def verify_speaker(
             "metric": "cosine_similarity",
             "model": MODEL_NAME,
             "analysis_seconds": 20,
+            "decision_threshold": SPEAKER_COMPARISON_THRESHOLD,
+            "identity_confirmed": False,
             "calibration_status": "mvp_thresholds_not_final",
         }
 

@@ -1,6 +1,7 @@
+from __future__ import annotations
 from dataclasses import dataclass
 
-import faiss
+
 import numpy as np
 
 from app.models.schemas import DocumentChunk
@@ -41,6 +42,8 @@ class VectorStore:
     ) -> None:
         if not chunks:
             raise ValueError("chunks cannot be empty")
+
+        import faiss
 
         title_embeddings = embed_texts(
             [

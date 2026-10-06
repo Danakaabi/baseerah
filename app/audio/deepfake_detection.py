@@ -5,8 +5,7 @@ import tempfile
 import wave
 
 import numpy as np
-import onnxruntime as ort
-from huggingface_hub import hf_hub_download
+
 
 
 MODEL_REPO = "SpeechAntiSpoofingBenchmarks/Wav2Vec2-Small-AntiDeepfake"
@@ -18,6 +17,9 @@ WINDOW_SAMPLES = 64000  # 4 seconds
 
 @lru_cache(maxsize=1)
 def get_deepfake_session():
+    import onnxruntime as ort
+    from huggingface_hub import hf_hub_download
+
     model_path = hf_hub_download(
         repo_id=MODEL_REPO,
         filename=MODEL_FILE,

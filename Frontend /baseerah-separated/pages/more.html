@@ -5,37 +5,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>المزيد | بصيرة</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/styles.css">
 </head>
 <body>
 <div class="phone">
-  <div class="notch"></div>
-  <div class="statusbar"><span>8:15</span><span>🔕 📶 🔋</span></div>
+
+
   <div class="top">
     <button class="iconbtn" onclick="goBack()" aria-label="رجوع">›</button>
     <div class="crumb">بصيرة</div>
     <div class="spacer32"></div>
   </div>
-  
-  <main class="screen">
-    
-<div class="h1 disp">المزيد</div>
-<div class="card">
-  <div class="switchrow"><div class="switch" id="sw1" onclick="toggle('sw1')"><i></i></div><span>حفظ سجل التحقق على الجهاز</span></div>
-  <div class="switchrow"><div class="switch" id="sw2" onclick="toggle('sw2')"><i></i></div><span>عرض القراءات التقنية بالتفصيل</span></div>
-</div>
-<div class="card compact">
-  <div class="row" onclick="go('log')"><span class="chev">‹</span><div class="rowtext"><b>سجل التحقق</b></div></div>
-  <div class="row" onclick="go('saved')"><span class="chev">‹</span><div class="rowtext"><b>المحفوظات</b></div></div>
-</div>
-<div class="card">
-  <b style="display:block;color:var(--cream);margin-bottom:8px;">عن بصيرة</b>
-  <span class="muted-copy">منصة للتحقق من المحتوى الإسلامي الرقمي وتتبعه إلى سياقه الأصلي. الإصدار ١.٠ (تجريبي).</span>
-</div>
 
-  </main>
-  <nav class="tabbar"><a href="../index.html" class=""><span class="ti">⌂</span>الرئيسية</a><a href="tools.html" class=""><span class="ti">♡</span>محبة الأدوات</a><a href="authors.html" class=""><span class="ti">▤</span>المؤلفات</a><a href="more.html" class="on"><span class="ti">⋯</span>المزيد</a></nav>
+  <main class="screen"><h1>الإعدادات وعن بصيرة</h1><div class="card"><label><input type="checkbox" id="keepHistory"> حفظ سجل النتائج على هذا الجهاز</label><p class="muted-copy">السجل اختياري، ويحتوي النص المستخرج والنتائج. لا تحفظ الملفات الصوتية أو الصور في السجل.</p><button class="btn ghost" id="clearHistory">مسح السجل والمحفوظات</button><p class="status" role="status"></p></div><div class="card"><h2>عن بصيرة</h2><p>نموذج أولي للتحقق من المحتوى الإسلامي وتتبع المصدر والسياق.</p><p>نتائج الصوت مؤشرات مساعدة. تحليل القص والدمج غير مفعّل. إحالة النتيجة للمراجعة لا تعني إرسالها إلى مختص تلقائيًا.</p></div></main>
+  <nav class="tabbar"><a href="../index.html" class=""><span class="ti">⌂</span>الرئيسية</a><a href="tools.html" class=""><span class="ti">♡</span>الأدوات</a><a href="authors.html" class=""><span class="ti">▤</span>المؤلفات</a><a href="more.html" class="on"><span class="ti">⋯</span>المزيد</a></nav>
 </div>
 <script src="../js/app.js"></script>
 </body>

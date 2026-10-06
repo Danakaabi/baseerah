@@ -1,7 +1,7 @@
 from functools import lru_cache
 from pathlib import Path
 
-from faster_whisper import WhisperModel
+
 
 
 SUPPORTED_AUDIO_EXTENSIONS = {
@@ -14,10 +14,12 @@ SUPPORTED_AUDIO_EXTENSIONS = {
 
 
 @lru_cache(maxsize=1)
-def get_whisper_model() -> WhisperModel:
+def get_whisper_model():
     """
     Load and reuse Whisper for Arabic speech recognition.
     """
+
+    from faster_whisper import WhisperModel
 
     return WhisperModel(
         "small",
